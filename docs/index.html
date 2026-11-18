@@ -23,784 +23,866 @@ a { color:inherit; text-decoration-color:var(--line); } a:hover { text-decoratio
 .chart { width:100%; height:auto; } .grid { stroke:var(--line); } .axis { fill:var(--muted); font-size:11px; }
 .key { display:inline-block; width:18px; vertical-align:middle; border-top:2px solid var(--accent); }
 .key.dashed { border-top:1px dashed var(--muted); }
-@media (max-width:700px) { th:nth-child(5), td:nth-child(5), th:nth-child(7), td:nth-child(7) { display:none; } }
+.ranges { display:flex; gap:6px; margin-bottom:8px; }
+.ranges button { font:inherit; font-size:12px; padding:3px 10px; border:1px solid var(--line); border-radius:6px; background:transparent; color:var(--muted); cursor:pointer; }
+.ranges button.on { color:var(--fg); border-color:var(--accent); }
+th:nth-child(n+5):nth-child(-n+9) { width:52px; }
+@media (max-width:900px) { th:nth-child(4), td:nth-child(4), .spark-cell, th:last-child { display:none; } }
+@media (max-width:640px) { th:nth-child(3), td:nth-child(3), th:nth-child(8), td:nth-child(8), th:nth-child(9), td:nth-child(9) { display:none; } }
 </style></head><body><main>
 <h1>Forever auction house</h1>
 <p class="sub">EU · ruleset 2 · Horde (house 114) · snapshot <time data-utc="2026-11-18T21:23:00+00:00">18 Nov 2026 21:23 UTC</time></p>
-<p class="small muted">Market value = average price of the cheapest 15% of units listed. Click any row for its 30-day chart.</p>
-<h2>Crafting profit</h2>
-<p class="small muted">Sale value is after the 5% auction house cut. Recipes and reagents are set in config.toml.</p>
-<table><thead><tr><th>Recipe</th><th class="num">Materials cost</th><th class="num">Sells for</th><th class="num">Profit per craft</th><th class="num">Margin</th></tr></thead>
-<tbody><tr><td>Transmute: Arcanite<div class="small muted">Craft and sell</div></td>
-  <td class="num">12g 11s</td><td class="num">44g 61s</td>
-  <td class="num"><b class="up">32g 49s</b></td>
-  <td class="num"><span class="up">+268%</span></td></tr><tr><td>Bolt of Runecloth<div class="small muted">Craft and sell</div></td>
-  <td class="num">27s 55c</td><td class="num">31s 36c</td>
-  <td class="num"><b class="up">3s 81c</b></td>
-  <td class="num"><span class="up">+14%</span></td></tr><tr><td>Smelt Thorium<div class="small muted">Craft and sell</div></td>
-  <td class="num">21s 97c</td><td class="num">23s 3c</td>
-  <td class="num"><b class="up">1s 6c</b></td>
-  <td class="num"><span class="up">+5%</span></td></tr><tr><td>Smelt Bronze<div class="small muted">Craft and sell</div></td>
-  <td class="num">3s 2c</td><td class="num">3s 48c</td>
-  <td class="num"><b class="up">46c</b></td>
-  <td class="num"><span class="up">+15%</span></td></tr><tr><td>Smelt Mithril<div class="small muted">Craft and sell</div></td>
-  <td class="num">10s 98c</td><td class="num">11s 18c</td>
-  <td class="num"><b class="up">20c</b></td>
-  <td class="num"><span class="up">+2%</span></td></tr><tr><td>Smelt Iron<div class="small muted">Craft and sell</div></td>
-  <td class="num">2s 69c</td><td class="num">2s 88c</td>
-  <td class="num"><b class="up">19c</b></td>
-  <td class="num"><span class="up">+7%</span></td></tr><tr><td>Bolt of Linen Cloth<div class="small muted">Craft and sell</div></td>
-  <td class="num">44c</td><td class="num">49c</td>
-  <td class="num"><b class="up">5c</b></td>
-  <td class="num"><span class="up">+12%</span></td></tr><tr><td>Smelt Copper<div class="small muted">Sell the materials</div></td>
-  <td class="num">1s 48c</td><td class="num">1s 44c</td>
-  <td class="num"><b class="down">-4c</b></td>
-  <td class="num"><span class="down">-2%</span></td></tr><tr><td>Bolt of Woolen Cloth<div class="small muted">Sell the materials</div></td>
-  <td class="num">4s 29c</td><td class="num">4s 17c</td>
-  <td class="num"><b class="down">-12c</b></td>
-  <td class="num"><span class="down">-3%</span></td></tr><tr><td>Bolt of Mageweave<div class="small muted">Sell the materials</div></td>
-  <td class="num">19s 60c</td><td class="num">19s 42c</td>
-  <td class="num"><b class="down">-18c</b></td>
-  <td class="num"><span class="down">-1%</span></td></tr><tr><td>Bolt of Silk Cloth<div class="small muted">Sell the materials</div></td>
-  <td class="num">7s 84c</td><td class="num">7s 66c</td>
-  <td class="num"><b class="down">-18c</b></td>
-  <td class="num"><span class="down">-2%</span></td></tr></tbody></table>
+<p class="small muted">Market value = average price of the cheapest 15% of units listed. 24 h compares with the snapshot a day ago; 7 d to 6 m compare with that day's average price. "–" means not enough history yet. Click any row for its chart.</p>
+
 <h2>Herbs</h2>
-<table><thead><tr><th>Item</th><th class="num">Market value</th><th class="num">Listed</th>
-<th class="num">24 h</th><th class="num">7-day avg</th><th class="num">vs 7-day</th><th>Last 7 days</th></tr></thead>
+<table><thead><tr><th>Item</th><th class="num">Market value</th><th class="num">Listed</th><th class="num">7-day avg</th>
+<th class="num">24 h</th><th class="num">7 d</th><th class="num">1 m</th><th class="num">3 m</th><th class="num">6 m</th><th>Last 7 days</th></tr></thead>
 <tbody>
-<tr class="item" data-id="2447" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=2447" target="_blank" rel="noopener">Peacebloom</a></td>
+<tr class="item" data-id="2447" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=2447" target="_blank" rel="noopener">Peacebloom</a></td>
   <td class="num"><b>35c</b><div class="small muted">min 27c</div></td>
   <td class="num">18,084</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">35c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d2447" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="765" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=765" target="_blank" rel="noopener">Silverleaf</a></td>
+<tr class="detail" id="d2447" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="2447"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="765" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=765" target="_blank" rel="noopener">Silverleaf</a></td>
   <td class="num"><b>18c</b><div class="small muted">min 16c</div></td>
   <td class="num">20,058</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">18c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d765" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="2449" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=2449" target="_blank" rel="noopener">Earthroot</a></td>
+<tr class="detail" id="d765" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="765"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="2449" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=2449" target="_blank" rel="noopener">Earthroot</a></td>
   <td class="num"><b>93c</b><div class="small muted">min 91c</div></td>
   <td class="num">4,238</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">93c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d2449" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="785" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=785" target="_blank" rel="noopener">Mageroyal</a></td>
+<tr class="detail" id="d2449" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="2449"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="785" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=785" target="_blank" rel="noopener">Mageroyal</a></td>
   <td class="num"><b>60c</b><div class="small muted">min 57c</div></td>
   <td class="num">7,674</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">60c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d785" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="2450" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=2450" target="_blank" rel="noopener">Briarthorn</a></td>
+<tr class="detail" id="d785" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="785"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="2450" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=2450" target="_blank" rel="noopener">Briarthorn</a></td>
   <td class="num"><b>1s</b><div class="small muted">min 99c</div></td>
   <td class="num">8,880</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">1s</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d2450" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="2453" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=2453" target="_blank" rel="noopener">Bruiseweed</a></td>
+<tr class="detail" id="d2450" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="2450"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="2453" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=2453" target="_blank" rel="noopener">Bruiseweed</a></td>
   <td class="num"><b>59c</b><div class="small muted">min 59c</div></td>
   <td class="num">3,039</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">59c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d2453" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="3820" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=3820" target="_blank" rel="noopener">Stranglekelp</a></td>
+<tr class="detail" id="d2453" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="2453"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="3820" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=3820" target="_blank" rel="noopener">Stranglekelp</a></td>
   <td class="num"><b>1s 88c</b><div class="small muted">min 1s 75c</div></td>
   <td class="num">2,950</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">1s 88c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d3820" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="3355" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=3355" target="_blank" rel="noopener">Wild Steelbloom</a></td>
+<tr class="detail" id="d3820" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="3820"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="3355" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=3355" target="_blank" rel="noopener">Wild Steelbloom</a></td>
   <td class="num"><b>79c</b><div class="small muted">min 78c</div></td>
   <td class="num">2,188</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">79c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d3355" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="3369" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=3369" target="_blank" rel="noopener">Grave Moss</a></td>
+<tr class="detail" id="d3355" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="3355"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="3369" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=3369" target="_blank" rel="noopener">Grave Moss</a></td>
   <td class="num"><b>4s 41c</b><div class="small muted">min 4s 41c</div></td>
   <td class="num">773</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">4s 41c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d3369" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="3356" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=3356" target="_blank" rel="noopener">Kingsblood</a></td>
+<tr class="detail" id="d3369" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="3369"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="3356" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=3356" target="_blank" rel="noopener">Kingsblood</a></td>
   <td class="num"><b>71c</b><div class="small muted">min 71c</div></td>
   <td class="num">3,431</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">71c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d3356" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="3357" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=3357" target="_blank" rel="noopener">Liferoot</a></td>
+<tr class="detail" id="d3356" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="3356"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="3357" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=3357" target="_blank" rel="noopener">Liferoot</a></td>
   <td class="num"><b>1s 93c</b><div class="small muted">min 1s 88c</div></td>
   <td class="num">4,882</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">1s 93c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d3357" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="3818" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=3818" target="_blank" rel="noopener">Fadeleaf</a></td>
+<tr class="detail" id="d3357" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="3357"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="3818" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=3818" target="_blank" rel="noopener">Fadeleaf</a></td>
   <td class="num"><b>3s 91c</b><div class="small muted">min 3s 82c</div></td>
   <td class="num">2,388</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">3s 91c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d3818" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="3821" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=3821" target="_blank" rel="noopener">Goldthorn</a></td>
+<tr class="detail" id="d3818" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="3818"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="3821" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=3821" target="_blank" rel="noopener">Goldthorn</a></td>
   <td class="num"><b>3s 89c</b><div class="small muted">min 3s 69c</div></td>
   <td class="num">3,144</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">3s 89c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d3821" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="3358" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=3358" target="_blank" rel="noopener">Khadgar&#x27;s Whisker</a></td>
+<tr class="detail" id="d3821" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="3821"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="3358" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=3358" target="_blank" rel="noopener">Khadgar&#x27;s Whisker</a></td>
   <td class="num"><b>4s 17c</b><div class="small muted">min 4s 16c</div></td>
   <td class="num">1,139</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">4s 17c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d3358" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="3819" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=3819" target="_blank" rel="noopener">Wintersbite</a></td>
+<tr class="detail" id="d3358" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="3358"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="3819" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=3819" target="_blank" rel="noopener">Wintersbite</a></td>
   <td class="num"><b>10s 58c</b><div class="small muted">min 9s 99c</div></td>
   <td class="num">1,032</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">10s 58c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d3819" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="4625" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=4625" target="_blank" rel="noopener">Firebloom</a></td>
+<tr class="detail" id="d3819" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="3819"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="4625" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=4625" target="_blank" rel="noopener">Firebloom</a></td>
   <td class="num"><b>9s 49c</b><div class="small muted">min 9s 49c</div></td>
   <td class="num">1,479</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">9s 49c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d4625" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="8831" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=8831" target="_blank" rel="noopener">Purple Lotus</a></td>
+<tr class="detail" id="d4625" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="4625"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="8831" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=8831" target="_blank" rel="noopener">Purple Lotus</a></td>
   <td class="num"><b>4s 98c</b><div class="small muted">min 4s 97c</div></td>
   <td class="num">2,611</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">4s 98c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d8831" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="8836" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=8836" target="_blank" rel="noopener">Arthas&#x27; Tears</a></td>
+<tr class="detail" id="d8831" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="8831"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="8836" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=8836" target="_blank" rel="noopener">Arthas&#x27; Tears</a></td>
   <td class="num"><b>19s 4c</b><div class="small muted">min 17s</div></td>
   <td class="num">1,357</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">19s 4c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d8836" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="8838" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=8838" target="_blank" rel="noopener">Sungrass</a></td>
+<tr class="detail" id="d8836" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="8836"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="8838" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=8838" target="_blank" rel="noopener">Sungrass</a></td>
   <td class="num"><b>9s 96c</b><div class="small muted">min 9s 70c</div></td>
   <td class="num">2,040</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">9s 96c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d8838" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="8839" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=8839" target="_blank" rel="noopener">Blindweed</a></td>
+<tr class="detail" id="d8838" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="8838"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="8839" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=8839" target="_blank" rel="noopener">Blindweed</a></td>
   <td class="num"><b>11s 24c</b><div class="small muted">min 11s 24c</div></td>
   <td class="num">1,307</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">11s 24c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d8839" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="8845" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=8845" target="_blank" rel="noopener">Ghost Mushroom</a></td>
+<tr class="detail" id="d8839" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="8839"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="8845" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=8845" target="_blank" rel="noopener">Ghost Mushroom</a></td>
   <td class="num"><b>32s 60c</b><div class="small muted">min 32s 55c</div></td>
   <td class="num">790</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">32s 60c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d8845" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="8846" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=8846" target="_blank" rel="noopener">Gromsblood</a></td>
+<tr class="detail" id="d8845" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="8845"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="8846" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=8846" target="_blank" rel="noopener">Gromsblood</a></td>
   <td class="num"><b>21s 10c</b><div class="small muted">min 21s 8c</div></td>
   <td class="num">1,051</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">21s 10c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d8846" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="13464" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=13464" target="_blank" rel="noopener">Golden Sansam</a></td>
+<tr class="detail" id="d8846" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="8846"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="13464" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=13464" target="_blank" rel="noopener">Golden Sansam</a></td>
   <td class="num"><b>9s 22c</b><div class="small muted">min 9s 22c</div></td>
   <td class="num">468</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">9s 22c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d13464" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="13463" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=13463" target="_blank" rel="noopener">Dreamfoil</a></td>
+<tr class="detail" id="d13464" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="13464"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="13463" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=13463" target="_blank" rel="noopener">Dreamfoil</a></td>
   <td class="num"><b>14s 97c</b><div class="small muted">min 14s 97c</div></td>
   <td class="num">910</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">14s 97c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d13463" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="13465" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=13465" target="_blank" rel="noopener">Mountain Silversage</a></td>
+<tr class="detail" id="d13463" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="13463"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="13465" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=13465" target="_blank" rel="noopener">Mountain Silversage</a></td>
   <td class="num"><b>12s 46c</b><div class="small muted">min 12s 43c</div></td>
   <td class="num">4,214</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">12s 46c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d13465" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="13466" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=13466" target="_blank" rel="noopener">Plaguebloom</a></td>
+<tr class="detail" id="d13465" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="13465"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="13466" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=13466" target="_blank" rel="noopener">Plaguebloom</a></td>
   <td class="num"><b>31s 52c</b><div class="small muted">min 31s 52c</div></td>
   <td class="num">336</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">31s 52c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d13466" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="13467" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=13467" target="_blank" rel="noopener">Icecap</a></td>
+<tr class="detail" id="d13466" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="13466"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="13467" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=13467" target="_blank" rel="noopener">Icecap</a></td>
   <td class="num"><b>13s</b><div class="small muted">min 13s</div></td>
   <td class="num">1,879</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">13s</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d13467" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="13468" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=13468" target="_blank" rel="noopener">Black Lotus</a></td>
+<tr class="detail" id="d13467" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="13467"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="13468" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=13468" target="_blank" rel="noopener">Black Lotus</a></td>
   <td class="num"><b>7g 99s</b><div class="small muted">min 7g 99s</div></td>
   <td class="num">282</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">7g 99s</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d13468" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr></tbody></table><h2>Ores and bars</h2>
-<table><thead><tr><th>Item</th><th class="num">Market value</th><th class="num">Listed</th>
-<th class="num">24 h</th><th class="num">7-day avg</th><th class="num">vs 7-day</th><th>Last 7 days</th></tr></thead>
+<tr class="detail" id="d13468" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="13468"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr></tbody></table><h2>Ores and bars</h2>
+<table><thead><tr><th>Item</th><th class="num">Market value</th><th class="num">Listed</th><th class="num">7-day avg</th>
+<th class="num">24 h</th><th class="num">7 d</th><th class="num">1 m</th><th class="num">3 m</th><th class="num">6 m</th><th>Last 7 days</th></tr></thead>
 <tbody>
-<tr class="item" data-id="2770" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=2770" target="_blank" rel="noopener">Copper Ore</a></td>
+<tr class="item" data-id="2770" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=2770" target="_blank" rel="noopener">Copper Ore</a></td>
   <td class="num"><b>1s 48c</b><div class="small muted">min 1s 41c</div></td>
   <td class="num">9,641</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">1s 48c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d2770" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="2771" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=2771" target="_blank" rel="noopener">Tin Ore</a></td>
+<tr class="detail" id="d2770" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="2770"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="2771" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=2771" target="_blank" rel="noopener">Tin Ore</a></td>
   <td class="num"><b>1s 49c</b><div class="small muted">min 1s</div></td>
   <td class="num">7,945</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">1s 49c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d2771" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="2772" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=2772" target="_blank" rel="noopener">Iron Ore</a></td>
+<tr class="detail" id="d2771" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="2771"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="2772" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=2772" target="_blank" rel="noopener">Iron Ore</a></td>
   <td class="num"><b>2s 69c</b><div class="small muted">min 2s 65c</div></td>
   <td class="num">3,319</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">2s 69c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d2772" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="2775" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=2775" target="_blank" rel="noopener">Silver Ore</a></td>
+<tr class="detail" id="d2772" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="2772"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="2775" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=2775" target="_blank" rel="noopener">Silver Ore</a></td>
   <td class="num"><b>5s 31c</b><div class="small muted">min 5s 23c</div></td>
   <td class="num">2,910</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">5s 31c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d2775" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="2776" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=2776" target="_blank" rel="noopener">Gold Ore</a></td>
+<tr class="detail" id="d2775" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="2775"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="2776" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=2776" target="_blank" rel="noopener">Gold Ore</a></td>
   <td class="num"><b>10s 94c</b><div class="small muted">min 9s 99c</div></td>
   <td class="num">3,774</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">10s 94c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d2776" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="3858" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=3858" target="_blank" rel="noopener">Mithril Ore</a></td>
+<tr class="detail" id="d2776" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="2776"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="3858" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=3858" target="_blank" rel="noopener">Mithril Ore</a></td>
   <td class="num"><b>10s 98c</b><div class="small muted">min 10s 91c</div></td>
   <td class="num">8,564</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">10s 98c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d3858" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="7911" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=7911" target="_blank" rel="noopener">Truesilver Ore</a></td>
+<tr class="detail" id="d3858" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="3858"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="7911" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=7911" target="_blank" rel="noopener">Truesilver Ore</a></td>
   <td class="num"><b>15s 2c</b><div class="small muted">min 14s 99c</div></td>
   <td class="num">1,302</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">15s 2c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d7911" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="10620" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=10620" target="_blank" rel="noopener">Thorium Ore</a></td>
+<tr class="detail" id="d7911" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="7911"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="10620" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=10620" target="_blank" rel="noopener">Thorium Ore</a></td>
   <td class="num"><b>21s 97c</b><div class="small muted">min 21s 95c</div></td>
   <td class="num">1,280</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">21s 97c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d10620" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="11370" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=11370" target="_blank" rel="noopener">Dark Iron Ore</a></td>
+<tr class="detail" id="d10620" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="10620"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="11370" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=11370" target="_blank" rel="noopener">Dark Iron Ore</a></td>
   <td class="num"><b>10s 58c</b><div class="small muted">min 10s 49c</div></td>
   <td class="num">2,404</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">10s 58c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d11370" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="2840" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=2840" target="_blank" rel="noopener">Copper Bar</a></td>
+<tr class="detail" id="d11370" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="11370"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="2840" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=2840" target="_blank" rel="noopener">Copper Bar</a></td>
   <td class="num"><b>1s 52c</b><div class="small muted">min 1s 44c</div></td>
   <td class="num">10,836</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">1s 52c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d2840" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="3576" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=3576" target="_blank" rel="noopener">Tin Bar</a></td>
+<tr class="detail" id="d2840" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="2840"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="3576" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=3576" target="_blank" rel="noopener">Tin Bar</a></td>
   <td class="num"><b>1s 50c</b><div class="small muted">min 1s 47c</div></td>
   <td class="num">5,107</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">1s 50c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d3576" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="2841" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=2841" target="_blank" rel="noopener">Bronze Bar</a></td>
+<tr class="detail" id="d3576" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="3576"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="2841" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=2841" target="_blank" rel="noopener">Bronze Bar</a></td>
   <td class="num"><b>1s 83c</b><div class="small muted">min 1s 74c</div></td>
   <td class="num">8,556</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">1s 83c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d2841" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="3575" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=3575" target="_blank" rel="noopener">Iron Bar</a></td>
+<tr class="detail" id="d2841" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="2841"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="3575" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=3575" target="_blank" rel="noopener">Iron Bar</a></td>
   <td class="num"><b>3s 3c</b><div class="small muted">min 3s 3c</div></td>
   <td class="num">8,779</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">3s 3c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d3575" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="3859" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=3859" target="_blank" rel="noopener">Steel Bar</a></td>
+<tr class="detail" id="d3575" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="3575"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="3859" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=3859" target="_blank" rel="noopener">Steel Bar</a></td>
   <td class="num"><b>9s 20c</b><div class="small muted">min 9s 16c</div></td>
   <td class="num">3,420</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">9s 20c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d3859" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="2842" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=2842" target="_blank" rel="noopener">Silver Bar</a></td>
+<tr class="detail" id="d3859" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="3859"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="2842" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=2842" target="_blank" rel="noopener">Silver Bar</a></td>
   <td class="num"><b>3s 71c</b><div class="small muted">min 3s 35c</div></td>
   <td class="num">3,935</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">3s 71c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d2842" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="3577" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=3577" target="_blank" rel="noopener">Gold Bar</a></td>
+<tr class="detail" id="d2842" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="2842"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="3577" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=3577" target="_blank" rel="noopener">Gold Bar</a></td>
   <td class="num"><b>9s 80c</b><div class="small muted">min 9s 54c</div></td>
   <td class="num">2,700</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">9s 80c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d3577" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="3860" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=3860" target="_blank" rel="noopener">Mithril Bar</a></td>
+<tr class="detail" id="d3577" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="3577"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="3860" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=3860" target="_blank" rel="noopener">Mithril Bar</a></td>
   <td class="num"><b>11s 77c</b><div class="small muted">min 11s 70c</div></td>
   <td class="num">5,720</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">11s 77c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d3860" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="6037" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=6037" target="_blank" rel="noopener">Truesilver Bar</a></td>
+<tr class="detail" id="d3860" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="3860"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="6037" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=6037" target="_blank" rel="noopener">Truesilver Bar</a></td>
   <td class="num"><b>18s 54c</b><div class="small muted">min 18s 28c</div></td>
   <td class="num">2,565</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">18s 54c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d6037" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="12359" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=12359" target="_blank" rel="noopener">Thorium Bar</a></td>
+<tr class="detail" id="d6037" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="6037"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="12359" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=12359" target="_blank" rel="noopener">Thorium Bar</a></td>
   <td class="num"><b>24s 24c</b><div class="small muted">min 24s 23c</div></td>
   <td class="num">4,806</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">24s 24c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d12359" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="11371" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=11371" target="_blank" rel="noopener">Dark Iron Bar</a></td>
+<tr class="detail" id="d12359" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="12359"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="11371" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=11371" target="_blank" rel="noopener">Dark Iron Bar</a></td>
   <td class="num"><b>2g</b><div class="small muted">min 2g</div></td>
   <td class="num">79</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">2g</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d11371" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="12360" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=12360" target="_blank" rel="noopener">Arcanite Bar</a></td>
+<tr class="detail" id="d11371" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="11371"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="12360" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=12360" target="_blank" rel="noopener">Arcanite Bar</a></td>
   <td class="num"><b>46g 95s</b><div class="small muted">min 46g 95s</div></td>
   <td class="num">50</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">46g 95s</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d12360" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="12363" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=12363" target="_blank" rel="noopener">Arcane Crystal</a></td>
+<tr class="detail" id="d12360" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="12360"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="12363" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=12363" target="_blank" rel="noopener">Arcane Crystal</a></td>
   <td class="num"><b>11g 87s</b><div class="small muted">min 11g 50s</div></td>
   <td class="num">67</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">11g 87s</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d12363" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr></tbody></table><h2>Cloth and leather</h2>
-<table><thead><tr><th>Item</th><th class="num">Market value</th><th class="num">Listed</th>
-<th class="num">24 h</th><th class="num">7-day avg</th><th class="num">vs 7-day</th><th>Last 7 days</th></tr></thead>
+<tr class="detail" id="d12363" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="12363"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr></tbody></table><h2>Cloth and leather</h2>
+<table><thead><tr><th>Item</th><th class="num">Market value</th><th class="num">Listed</th><th class="num">7-day avg</th>
+<th class="num">24 h</th><th class="num">7 d</th><th class="num">1 m</th><th class="num">3 m</th><th class="num">6 m</th><th>Last 7 days</th></tr></thead>
 <tbody>
-<tr class="item" data-id="2589" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=2589" target="_blank" rel="noopener">Linen Cloth</a></td>
+<tr class="item" data-id="2589" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=2589" target="_blank" rel="noopener">Linen Cloth</a></td>
   <td class="num"><b>22c</b><div class="small muted">min 17c</div></td>
   <td class="num">37,209</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">22c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d2589" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="2592" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=2592" target="_blank" rel="noopener">Wool Cloth</a></td>
+<tr class="detail" id="d2589" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="2589"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="2592" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=2592" target="_blank" rel="noopener">Wool Cloth</a></td>
   <td class="num"><b>1s 43c</b><div class="small muted">min 1s 37c</div></td>
   <td class="num">27,501</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">1s 43c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d2592" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="4306" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=4306" target="_blank" rel="noopener">Silk Cloth</a></td>
+<tr class="detail" id="d2592" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="2592"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="4306" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=4306" target="_blank" rel="noopener">Silk Cloth</a></td>
   <td class="num"><b>1s 96c</b><div class="small muted">min 1s 77c</div></td>
   <td class="num">42,404</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">1s 96c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d4306" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="4338" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=4338" target="_blank" rel="noopener">Mageweave Cloth</a></td>
+<tr class="detail" id="d4306" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="4306"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="4338" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=4338" target="_blank" rel="noopener">Mageweave Cloth</a></td>
   <td class="num"><b>3s 92c</b><div class="small muted">min 3s 87c</div></td>
   <td class="num">12,118</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">3s 92c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d4338" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="14047" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=14047" target="_blank" rel="noopener">Runecloth</a></td>
+<tr class="detail" id="d4338" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="4338"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="14047" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=14047" target="_blank" rel="noopener">Runecloth</a></td>
   <td class="num"><b>5s 51c</b><div class="small muted">min 5s 44c</div></td>
   <td class="num">20,368</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">5s 51c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d14047" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="14256" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=14256" target="_blank" rel="noopener">Felcloth</a></td>
+<tr class="detail" id="d14047" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="14047"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="14256" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=14256" target="_blank" rel="noopener">Felcloth</a></td>
   <td class="num"><b>75s</b><div class="small muted">min 75s</div></td>
   <td class="num">1,667</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">75s</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d14256" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="2996" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=2996" target="_blank" rel="noopener">Bolt of Linen Cloth</a></td>
-  <td class="num"><b>52c</b><div class="small muted">min 47c</div></td>
-  <td class="num">5,906</td>
-  <td class="num"><span class="muted">–</span></td>
-  <td class="num">52c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
-</tr>
-<tr class="detail" id="d2996" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="2997" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=2997" target="_blank" rel="noopener">Bolt of Woolen Cloth</a></td>
-  <td class="num"><b>4s 39c</b><div class="small muted">min 4s</div></td>
-  <td class="num">6,339</td>
-  <td class="num"><span class="muted">–</span></td>
-  <td class="num">4s 39c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
-</tr>
-<tr class="detail" id="d2997" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="4305" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=4305" target="_blank" rel="noopener">Bolt of Silk Cloth</a></td>
-  <td class="num"><b>8s 6c</b><div class="small muted">min 8s 6c</div></td>
-  <td class="num">1,373</td>
-  <td class="num"><span class="muted">–</span></td>
-  <td class="num">8s 6c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
-</tr>
-<tr class="detail" id="d4305" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="4339" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=4339" target="_blank" rel="noopener">Bolt of Mageweave</a></td>
-  <td class="num"><b>20s 44c</b><div class="small muted">min 19s 80c</div></td>
-  <td class="num">3,383</td>
-  <td class="num"><span class="muted">–</span></td>
-  <td class="num">20s 44c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
-</tr>
-<tr class="detail" id="d4339" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="14048" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=14048" target="_blank" rel="noopener">Bolt of Runecloth</a></td>
-  <td class="num"><b>33s 1c</b><div class="small muted">min 32s 97c</div></td>
-  <td class="num">2,375</td>
-  <td class="num"><span class="muted">–</span></td>
-  <td class="num">33s 1c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
-</tr>
-<tr class="detail" id="d14048" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="2934" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=2934" target="_blank" rel="noopener">Ruined Leather Scraps</a></td>
+<tr class="detail" id="d14256" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="14256"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="2934" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=2934" target="_blank" rel="noopener">Ruined Leather Scraps</a></td>
   <td class="num"><b>14c</b><div class="small muted">min 12c</div></td>
   <td class="num">9,790</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">14c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d2934" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="2318" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=2318" target="_blank" rel="noopener">Light Leather</a></td>
+<tr class="detail" id="d2934" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="2934"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="2318" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=2318" target="_blank" rel="noopener">Light Leather</a></td>
   <td class="num"><b>38c</b><div class="small muted">min 31c</div></td>
   <td class="num">22,438</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">38c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d2318" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="2319" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=2319" target="_blank" rel="noopener">Medium Leather</a></td>
+<tr class="detail" id="d2318" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="2318"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="2319" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=2319" target="_blank" rel="noopener">Medium Leather</a></td>
   <td class="num"><b>96c</b><div class="small muted">min 81c</div></td>
   <td class="num">20,267</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">96c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d2319" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="4234" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=4234" target="_blank" rel="noopener">Heavy Leather</a></td>
+<tr class="detail" id="d2319" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="2319"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="4234" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=4234" target="_blank" rel="noopener">Heavy Leather</a></td>
   <td class="num"><b>1s 94c</b><div class="small muted">min 1s 80c</div></td>
   <td class="num">11,391</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">1s 94c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d4234" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="4304" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=4304" target="_blank" rel="noopener">Thick Leather</a></td>
+<tr class="detail" id="d4234" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="4234"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="4304" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=4304" target="_blank" rel="noopener">Thick Leather</a></td>
   <td class="num"><b>5s 72c</b><div class="small muted">min 5s 59c</div></td>
   <td class="num">5,706</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">5s 72c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d4304" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="8170" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=8170" target="_blank" rel="noopener">Rugged Leather</a></td>
+<tr class="detail" id="d4304" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="4304"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="8170" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=8170" target="_blank" rel="noopener">Rugged Leather</a></td>
   <td class="num"><b>18s 18c</b><div class="small muted">min 18s 14c</div></td>
   <td class="num">4,141</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">18s 18c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d8170" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="783" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=783" target="_blank" rel="noopener">Light Hide</a></td>
+<tr class="detail" id="d8170" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="8170"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="783" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=783" target="_blank" rel="noopener">Light Hide</a></td>
   <td class="num"><b>85c</b><div class="small muted">min 79c</div></td>
   <td class="num">2,204</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">85c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d783" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="4232" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=4232" target="_blank" rel="noopener">Medium Hide</a></td>
+<tr class="detail" id="d783" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="783"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="4232" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=4232" target="_blank" rel="noopener">Medium Hide</a></td>
   <td class="num"><b>2s 51c</b><div class="small muted">min 2s 14c</div></td>
   <td class="num">4,197</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">2s 51c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d4232" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="4235" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=4235" target="_blank" rel="noopener">Heavy Hide</a></td>
+<tr class="detail" id="d4232" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="4232"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="4235" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=4235" target="_blank" rel="noopener">Heavy Hide</a></td>
   <td class="num"><b>9s 78c</b><div class="small muted">min 9s 55c</div></td>
   <td class="num">3,078</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">9s 78c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d4235" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="8169" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=8169" target="_blank" rel="noopener">Thick Hide</a></td>
+<tr class="detail" id="d4235" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="4235"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="8169" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=8169" target="_blank" rel="noopener">Thick Hide</a></td>
   <td class="num"><b>5s 45c</b><div class="small muted">min 5s 40c</div></td>
   <td class="num">1,160</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">5s 45c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d8169" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr>
-<tr class="item" data-id="8171" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item=8171" target="_blank" rel="noopener">Rugged Hide</a></td>
+<tr class="detail" id="d8169" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="8169"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>
+<tr class="item" data-id="8171" tabindex="0" title="Click for the price chart">
+  <td><a href="https://www.wowhead.com/forever/item=8171" target="_blank" rel="noopener">Rugged Hide</a></td>
   <td class="num"><b>5s 35c</b><div class="small muted">min 5s</div></td>
   <td class="num">2,076</td>
-  <td class="num"><span class="muted">–</span></td>
   <td class="num">5s 35c</td>
-  <td class="num"><span class="muted">+0%</span></td>
-  <td><span class="muted small">collecting…</span></td>
+  <td class="num"><span class="muted" title="Needs 1 day of history">–</span></td><td class="num"><span class="muted" title="Needs 7 days of history">–</span></td><td class="num"><span class="muted" title="Needs 1 month of history">–</span></td><td class="num"><span class="muted" title="Needs 3 months of history">–</span></td><td class="num"><span class="muted" title="Needs 6 months of history">–</span></td>
+  <td class="spark-cell"><span class="muted small">collecting…</span></td>
 </tr>
-<tr class="detail" id="d8171" hidden><td colspan="7"><p class="muted">The chart appears after a few hours of data.</p></td></tr></tbody></table>
-
-<p class="small muted" style="margin-top:40px">Data: Blizzard Battle.net API (undocumented WoW: Forever endpoints), updated hourly by GitHub Actions. Item IDs link to Wowhead's Classic database.</p>
+<tr class="detail" id="d8171" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="8171"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr></tbody></table>
+<h2>Never seen on this auction house</h2><p class='muted'>Either nobody has listed these yet, or the item ID is wrong for WoW: Forever. Check the ID on Wowhead and fix it in config.toml.</p><ul><li>Stonescale Eel <span class='muted'>(id 13422)</span></li><li>Firefin Snapper <span class='muted'>(id 6359)</span></li><li>Oily Blackmouth <span class='muted'>(id 6358)</span></li><li>Deviate Fish <span class='muted'>(id 6522)</span></li><li>Raw Nightfin Snapper <span class='muted'>(id 13759)</span></li><li>Raw Sunscale Salmon <span class='muted'>(id 13760)</span></li><li>Raw Whitescale Salmon <span class='muted'>(id 13889)</span></li><li>Raw Glossy Mightfish <span class='muted'>(id 13754)</span></li><li>Large Raw Mightfish <span class='muted'>(id 13893)</span></li><li>Winter Squid <span class='muted'>(id 13755)</span></li><li>Raw Summer Bass <span class='muted'>(id 13756)</span></li><li>Raw Redgill <span class='muted'>(id 13758)</span></li><li>Darkclaw Lobster <span class='muted'>(id 13888)</span></li><li>Raw Mithril Head Trout <span class='muted'>(id 8365)</span></li><li>Raw Spotted Yellowtail <span class='muted'>(id 4603)</span></li><li>Raw Rockscale Cod <span class='muted'>(id 6362)</span></li><li>Raw Bristle Whisker Catfish <span class='muted'>(id 6308)</span></li><li>Raw Rainbow Fin Albacore <span class='muted'>(id 6361)</span></li><li>Raw Loch Frenzy <span class='muted'>(id 6317)</span></li><li>Raw Longjaw Mud Snapper <span class='muted'>(id 6289)</span></li><li>Raw Slitherskin Mackerel <span class='muted'>(id 6303)</span></li><li>Raw Brilliant Smallfish <span class='muted'>(id 6291)</span></li><li>Stonescale Oil <span class='muted'>(id 13423)</span></li><li>Fire Oil <span class='muted'>(id 6371)</span></li><li>Blackmouth Oil <span class='muted'>(id 6370)</span></li></ul>
+<p class="small muted" style="margin-top:40px">Data: Blizzard Battle.net API (undocumented WoW: Forever endpoints), updated hourly by GitHub Actions. Item names link to Wowhead's WoW: Forever database.</p>
 </main>
 <script>
+const HIST = {"2447":{"h":[[498621,27,35]],"d":[[498621,27,35]]},"765":{"h":[[498621,16,18]],"d":[[498621,16,18]]},"2449":{"h":[[498621,91,93]],"d":[[498621,91,93]]},"785":{"h":[[498621,57,60]],"d":[[498621,57,60]]},"2450":{"h":[[498621,99,100]],"d":[[498621,99,100]]},"2453":{"h":[[498621,59,59]],"d":[[498621,59,59]]},"3820":{"h":[[498621,175,188]],"d":[[498621,175,188]]},"3355":{"h":[[498621,78,79]],"d":[[498621,78,79]]},"3369":{"h":[[498621,441,441]],"d":[[498621,441,441]]},"3356":{"h":[[498621,71,71]],"d":[[498621,71,71]]},"3357":{"h":[[498621,188,193]],"d":[[498621,188,193]]},"3818":{"h":[[498621,382,391]],"d":[[498621,382,391]]},"3821":{"h":[[498621,369,389]],"d":[[498621,369,389]]},"3358":{"h":[[498621,416,417]],"d":[[498621,416,417]]},"3819":{"h":[[498621,999,1058]],"d":[[498621,999,1058]]},"4625":{"h":[[498621,949,949]],"d":[[498621,949,949]]},"8831":{"h":[[498621,497,498]],"d":[[498621,497,498]]},"8836":{"h":[[498621,1700,1904]],"d":[[498621,1700,1904]]},"8838":{"h":[[498621,970,996]],"d":[[498621,970,996]]},"8839":{"h":[[498621,1124,1124]],"d":[[498621,1124,1124]]},"8845":{"h":[[498621,3255,3260]],"d":[[498621,3255,3260]]},"8846":{"h":[[498621,2108,2110]],"d":[[498621,2108,2110]]},"13464":{"h":[[498621,922,922]],"d":[[498621,922,922]]},"13463":{"h":[[498621,1497,1497]],"d":[[498621,1497,1497]]},"13465":{"h":[[498621,1243,1246]],"d":[[498621,1243,1246]]},"13466":{"h":[[498621,3152,3152]],"d":[[498621,3152,3152]]},"13467":{"h":[[498621,1300,1300]],"d":[[498621,1300,1300]]},"13468":{"h":[[498621,79999,79999]],"d":[[498621,79999,79999]]},"2770":{"h":[[498621,141,148]],"d":[[498621,141,148]]},"2771":{"h":[[498621,100,149]],"d":[[498621,100,149]]},"2772":{"h":[[498621,265,269]],"d":[[498621,265,269]]},"2775":{"h":[[498621,523,531]],"d":[[498621,523,531]]},"2776":{"h":[[498621,999,1094]],"d":[[498621,999,1094]]},"3858":{"h":[[498621,1091,1098]],"d":[[498621,1091,1098]]},"7911":{"h":[[498621,1499,1502]],"d":[[498621,1499,1502]]},"10620":{"h":[[498621,2195,2197]],"d":[[498621,2195,2197]]},"11370":{"h":[[498621,1049,1058]],"d":[[498621,1049,1058]]},"2840":{"h":[[498621,144,152]],"d":[[498621,144,152]]},"3576":{"h":[[498621,147,150]],"d":[[498621,147,150]]},"2841":{"h":[[498621,174,183]],"d":[[498621,174,183]]},"3575":{"h":[[498621,303,303]],"d":[[498621,303,303]]},"3859":{"h":[[498621,916,920]],"d":[[498621,916,920]]},"2842":{"h":[[498621,335,371]],"d":[[498621,335,371]]},"3577":{"h":[[498621,954,980]],"d":[[498621,954,980]]},"3860":{"h":[[498621,1170,1177]],"d":[[498621,1170,1177]]},"6037":{"h":[[498621,1828,1854]],"d":[[498621,1828,1854]]},"12359":{"h":[[498621,2423,2424]],"d":[[498621,2423,2424]]},"11371":{"h":[[498621,20000,20000]],"d":[[498621,20000,20000]]},"12360":{"h":[[498621,469500,469599]],"d":[[498621,469500,469599]]},"12363":{"h":[[498621,115000,118764]],"d":[[498621,115000,118764]]},"2589":{"h":[[498621,17,22]],"d":[[498621,17,22]]},"2592":{"h":[[498621,137,143]],"d":[[498621,137,143]]},"4306":{"h":[[498621,177,196]],"d":[[498621,177,196]]},"4338":{"h":[[498621,387,392]],"d":[[498621,387,392]]},"14047":{"h":[[498621,544,551]],"d":[[498621,544,551]]},"14256":{"h":[[498621,7500,7500]],"d":[[498621,7500,7500]]},"2934":{"h":[[498621,12,14]],"d":[[498621,12,14]]},"2318":{"h":[[498621,31,38]],"d":[[498621,31,38]]},"2319":{"h":[[498621,81,96]],"d":[[498621,81,96]]},"4234":{"h":[[498621,180,194]],"d":[[498621,180,194]]},"4304":{"h":[[498621,559,572]],"d":[[498621,559,572]]},"8170":{"h":[[498621,1814,1818]],"d":[[498621,1814,1818]]},"783":{"h":[[498621,79,85]],"d":[[498621,79,85]]},"4232":{"h":[[498621,214,251]],"d":[[498621,214,251]]},"4235":{"h":[[498621,955,978]],"d":[[498621,955,978]]},"8169":{"h":[[498621,540,545]],"d":[[498621,540,545]]},"8171":{"h":[[498621,500,535]],"d":[[498621,500,535]]}};
+const gold = c => { c = Math.round(c); const g = Math.floor(c / 10000), s = Math.floor(c / 100) % 100, k = c % 100;
+  if (g >= 100) return g.toLocaleString('nb-NO') + 'g'; if (g) return s ? g + 'g ' + s + 's' : g + 'g';
+  if (s) return k ? s + 's ' + k + 'c' : s + 's'; return k + 'c'; };
+function draw(box, range) {
+  const data = HIST[box.dataset.id], res = box.parentNode.querySelector('.res');
+  const src = range && range <= 30 ? data.h : data.d, cut = range ? (src.at(-1)[0] - range * 24) : -Infinity;
+  const pts = src.filter(p => p[0] >= cut);
+  res.textContent = '· ' + (src === data.h ? '4-hour' : 'daily') + ' averages';
+  if (pts.length < 2) { box.innerHTML = '<p class="muted">Not enough history for this range yet.</p>'; return; }
+  const W = 720, H = 220, L = 78, B = 26, T = 14, R = 12;
+  const vals = pts.flatMap(p => [p[1], p[2]]); let lo = Math.min(...vals) * 0.95, hi = Math.max(...vals) * 1.05;
+  const t0 = pts[0][0], t1 = pts.at(-1)[0], X = t => L + (t - t0) / ((t1 - t0) || 1) * (W - L - R), Y = v => T + (1 - (v - lo) / ((hi - lo) || 1)) * (H - T - B);
+  const line = i => pts.map(p => X(p[0]).toFixed(1) + ',' + Y(p[i]).toFixed(1)).join(' ');
+  const fmt = h => new Date(h * 3600e3).toLocaleDateString([], { day: 'numeric', month: 'short' });
+  let grid = '';
+  for (const f of [0.1, 0.5, 0.9]) { const v = lo + (hi - lo) * f; grid += `<line x1="${L}" x2="${W - R}" y1="${Y(v).toFixed(1)}" y2="${Y(v).toFixed(1)}" class="grid"/><text x="${L - 8}" y="${(Y(v) + 4).toFixed(1)}" text-anchor="end" class="axis">${gold(v)}</text>`; }
+  box.innerHTML = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Price history">${grid}
+<polyline points="${line(1)}" fill="none" stroke="var(--muted)" stroke-width="1" stroke-dasharray="3 3"/>
+<polyline points="${line(2)}" fill="none" stroke="var(--accent)" stroke-width="2"/>
+<text x="${L}" y="${H - 6}" class="axis">${fmt(t0)}</text><text x="${W - R}" y="${H - 6}" text-anchor="end" class="axis">${fmt(t1)}</text></svg>`;
+}
+document.querySelectorAll('tr.detail').forEach(d => {
+  d.querySelectorAll('.ranges button').forEach(b => b.addEventListener('click', () => {
+    d.querySelectorAll('.ranges button').forEach(x => x.classList.toggle('on', x === b));
+    draw(d.querySelector('.chartbox'), Number(b.dataset.r));
+  }));
+});
 document.querySelectorAll('tr.item').forEach(r => {
-  const toggle = e => { if (e.target.closest('a')) return; const d = document.getElementById('d' + r.dataset.id); d.hidden = !d.hidden; };
+  const toggle = e => { if (e.target.closest('a')) return; const d = document.getElementById('d' + r.dataset.id); d.hidden = !d.hidden;
+    if (!d.hidden && !d.querySelector('svg')) draw(d.querySelector('.chartbox'), Number(d.querySelector('.ranges .on').dataset.r)); };
   r.addEventListener('click', toggle);
   r.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(e); } });
 });

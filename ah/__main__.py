@@ -74,8 +74,8 @@ def main():
     if args.command == "houses":
         houses(cfg)
     elif args.command == "fetch":
-        if fetch(cfg):
-            report(cfg)
+        fetch(cfg)
+        report(cfg)   # always rebuild, so changes to config.toml or the code show up even without a new snapshot
     else:
         report(cfg)
 

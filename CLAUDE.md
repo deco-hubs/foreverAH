@@ -1,7 +1,7 @@
 # CLAUDE.md: context for Claude working on this project
 
 ## What this is
-A WoW: Forever auction house price tracker for one Horde auction house: EU, ruleset 2 (Normal). It runs hourly on GitHub Actions, uses Python 3.11+ stdlib only, stores history as CSV in `data/`, and writes a static dashboard to `docs/index.html` for GitHub Pages. It's a sibling of the user's investment tracker and follows the same style.
+A WoW: Forever auction house price tracker for one Horde auction house: EU, ruleset 2 (Normal). It runs on GitHub Actions every 20 minutes (Blizzard publishes about hourly; duplicate snapshots are skipped, and the page is rebuilt every run), uses Python 3.11+ stdlib only, stores history as CSV in `data/`, and writes a static dashboard to `docs/index.html` for GitHub Pages. It's a sibling of the user's investment tracker and follows the same style.
 
 ## Blizzard API (undocumented for Forever, as of Nov 2026)
 - **Auth:** client credentials at https://oauth.battle.net/token, with secrets `BNET_CLIENT_ID` and `BNET_CLIENT_SECRET`.

@@ -2,7 +2,9 @@ name: Update auction prices
 
 on:
   schedule:
-    - cron: "23 * * * *"        # every hour at :23 (GitHub can run scheduled jobs a few minutes late)
+    - cron: "8,28,48 * * * *"   # every 20 minutes. Blizzard publishes about once an hour and GitHub often
+                                  # starts scheduled jobs late, so checking 3 times an hour avoids missed snapshots.
+                                  # Runs that find no new snapshot only rebuild the page (and usually commit nothing).
   workflow_dispatch:             # "Run workflow" button in the Actions tab
     inputs:
       command:
