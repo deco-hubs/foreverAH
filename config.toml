@@ -1,0 +1,175 @@
+# Forever AH tracker settings. Secrets (Blizzard client id/secret) are NOT here:
+# they live in GitHub -> Settings -> Secrets as BNET_CLIENT_ID and BNET_CLIENT_SECRET.
+
+[auction_house]
+region   = "eu"
+ruleset  = 2      # 1 PvP, 2 Normal, 3 Roleplay, 15 Roleplay PvP
+house_id = 114    # Horde. UNCONFIRMED for the Normal ruleset: run the "houses" command once and
+                  # compare a price you can see in game. EU Horde candidates: 113, 114, 115, 120, 124.
+locale   = "en_GB"
+
+[materials]
+# ---------------------------------------------------------------------------
+# Items to track. IDs are the original (vanilla) item IDs. WoW: Forever reuses
+# them as far as anyone has reported, but this list is UNVERIFIED against Forever:
+# the dashboard flags any item that never appears on the auction house.
+# Add your own items at the bottom: find the ID in the item's Wowhead URL.
+# ---------------------------------------------------------------------------
+
+items = [
+  # Herbs
+  { id = 2447,  name = "Peacebloom",          category = "Herbs" },
+  { id = 765,   name = "Silverleaf",          category = "Herbs" },
+  { id = 2449,  name = "Earthroot",           category = "Herbs" },
+  { id = 785,   name = "Mageroyal",           category = "Herbs" },
+  { id = 2450,  name = "Briarthorn",          category = "Herbs" },
+  { id = 2453,  name = "Bruiseweed",          category = "Herbs" },
+  { id = 3820,  name = "Stranglekelp",        category = "Herbs" },
+  { id = 3355,  name = "Wild Steelbloom",     category = "Herbs" },
+  { id = 3369,  name = "Grave Moss",          category = "Herbs" },
+  { id = 3356,  name = "Kingsblood",          category = "Herbs" },
+  { id = 3357,  name = "Liferoot",            category = "Herbs" },
+  { id = 3818,  name = "Fadeleaf",            category = "Herbs" },
+  { id = 3821,  name = "Goldthorn",           category = "Herbs" },
+  { id = 3358,  name = "Khadgar's Whisker",   category = "Herbs" },
+  { id = 3819,  name = "Wintersbite",         category = "Herbs" },
+  { id = 4625,  name = "Firebloom",           category = "Herbs" },
+  { id = 8831,  name = "Purple Lotus",        category = "Herbs" },
+  { id = 8836,  name = "Arthas' Tears",       category = "Herbs" },
+  { id = 8838,  name = "Sungrass",            category = "Herbs" },
+  { id = 8839,  name = "Blindweed",           category = "Herbs" },
+  { id = 8845,  name = "Ghost Mushroom",      category = "Herbs" },
+  { id = 8846,  name = "Gromsblood",          category = "Herbs" },
+  { id = 13464, name = "Golden Sansam",       category = "Herbs" },
+  { id = 13463, name = "Dreamfoil",           category = "Herbs" },
+  { id = 13465, name = "Mountain Silversage", category = "Herbs" },
+  { id = 13466, name = "Plaguebloom",         category = "Herbs" },
+  { id = 13467, name = "Icecap",              category = "Herbs" },
+  { id = 13468, name = "Black Lotus",         category = "Herbs" },
+
+  # Ores and bars
+  { id = 2770,  name = "Copper Ore",          category = "Ores and bars" },
+  { id = 2771,  name = "Tin Ore",             category = "Ores and bars" },
+  { id = 2772,  name = "Iron Ore",            category = "Ores and bars" },
+  { id = 2775,  name = "Silver Ore",          category = "Ores and bars" },
+  { id = 2776,  name = "Gold Ore",            category = "Ores and bars" },
+  { id = 3858,  name = "Mithril Ore",         category = "Ores and bars" },
+  { id = 7911,  name = "Truesilver Ore",      category = "Ores and bars" },
+  { id = 10620, name = "Thorium Ore",         category = "Ores and bars" },
+  { id = 11370, name = "Dark Iron Ore",       category = "Ores and bars" },
+  { id = 2840,  name = "Copper Bar",          category = "Ores and bars" },
+  { id = 3576,  name = "Tin Bar",             category = "Ores and bars" },
+  { id = 2841,  name = "Bronze Bar",          category = "Ores and bars" },
+  { id = 3575,  name = "Iron Bar",            category = "Ores and bars" },
+  { id = 3859,  name = "Steel Bar",           category = "Ores and bars" },
+  { id = 2842,  name = "Silver Bar",          category = "Ores and bars" },
+  { id = 3577,  name = "Gold Bar",            category = "Ores and bars" },
+  { id = 3860,  name = "Mithril Bar",         category = "Ores and bars" },
+  { id = 6037,  name = "Truesilver Bar",      category = "Ores and bars" },
+  { id = 12359, name = "Thorium Bar",         category = "Ores and bars" },
+  { id = 11371, name = "Dark Iron Bar",       category = "Ores and bars" },
+  { id = 12360, name = "Arcanite Bar",        category = "Ores and bars" },
+  { id = 12363, name = "Arcane Crystal",      category = "Ores and bars" },
+
+  # Cloth
+  { id = 2589,  name = "Linen Cloth",         category = "Cloth and leather" },
+  { id = 2592,  name = "Wool Cloth",          category = "Cloth and leather" },
+  { id = 4306,  name = "Silk Cloth",          category = "Cloth and leather" },
+  { id = 4338,  name = "Mageweave Cloth",     category = "Cloth and leather" },
+  { id = 14047, name = "Runecloth",           category = "Cloth and leather" },
+  { id = 14256, name = "Felcloth",            category = "Cloth and leather" },
+  { id = 2996,  name = "Bolt of Linen Cloth", category = "Cloth and leather" },
+  { id = 2997,  name = "Bolt of Woolen Cloth",category = "Cloth and leather" },
+  { id = 4305,  name = "Bolt of Silk Cloth",  category = "Cloth and leather" },
+  { id = 4339,  name = "Bolt of Mageweave",   category = "Cloth and leather" },
+  { id = 14048, name = "Bolt of Runecloth",   category = "Cloth and leather" },
+
+  # Leather
+  { id = 2934,  name = "Ruined Leather Scraps", category = "Cloth and leather" },
+  { id = 2318,  name = "Light Leather",       category = "Cloth and leather" },
+  { id = 2319,  name = "Medium Leather",      category = "Cloth and leather" },
+  { id = 4234,  name = "Heavy Leather",       category = "Cloth and leather" },
+  { id = 4304,  name = "Thick Leather",       category = "Cloth and leather" },
+  { id = 8170,  name = "Rugged Leather",      category = "Cloth and leather" },
+  { id = 783,   name = "Light Hide",          category = "Cloth and leather" },
+  { id = 4232,  name = "Medium Hide",         category = "Cloth and leather" },
+  { id = 4235,  name = "Heavy Hide",          category = "Cloth and leather" },
+  { id = 8169,  name = "Thick Hide",          category = "Cloth and leather" },
+  { id = 8171,  name = "Rugged Hide",         category = "Cloth and leather" },
+
+  # Your own items: add lines like this one (category can be anything you like)
+  # { id = 12345, name = "Some item", category = "My list" },
+]
+
+# ---------------------------------------------------------------------------
+# Crafting profit. Each recipe: what it makes, how many, and the reagents.
+# These are EXAMPLES from the original game, to check against Forever (recipes
+# may have changed). Reagents you buy from a vendor: add vendor_price in copper.
+# Profit = sale value after the 5% auction house cut minus reagent cost.
+# ---------------------------------------------------------------------------
+
+[[recipe]]
+name = "Smelt Copper"
+makes = 2840
+makes_qty = 1
+reagents = [ { id = 2770, qty = 1 } ]
+
+[[recipe]]
+name = "Smelt Bronze"
+makes = 2841
+makes_qty = 2
+reagents = [ { id = 2840, qty = 1 }, { id = 3576, qty = 1 } ]
+
+[[recipe]]
+name = "Smelt Iron"
+makes = 3575
+makes_qty = 1
+reagents = [ { id = 2772, qty = 1 } ]
+
+[[recipe]]
+name = "Smelt Mithril"
+makes = 3860
+makes_qty = 1
+reagents = [ { id = 3858, qty = 1 } ]
+
+[[recipe]]
+name = "Smelt Thorium"
+makes = 12359
+makes_qty = 1
+reagents = [ { id = 10620, qty = 1 } ]
+
+[[recipe]]
+name = "Transmute: Arcanite"
+makes = 12360
+makes_qty = 1
+reagents = [ { id = 12359, qty = 1 }, { id = 12363, qty = 1 } ]
+
+[[recipe]]
+name = "Bolt of Linen Cloth"
+makes = 2996
+makes_qty = 1
+reagents = [ { id = 2589, qty = 2 } ]
+
+[[recipe]]
+name = "Bolt of Woolen Cloth"
+makes = 2997
+makes_qty = 1
+reagents = [ { id = 2592, qty = 3 } ]
+
+[[recipe]]
+name = "Bolt of Silk Cloth"
+makes = 4305
+makes_qty = 1
+reagents = [ { id = 4306, qty = 4 } ]
+
+[[recipe]]
+name = "Bolt of Mageweave"
+makes = 4339
+makes_qty = 1
+reagents = [ { id = 4338, qty = 5 } ]
+
+[[recipe]]
+name = "Bolt of Runecloth"
+makes = 14048
+makes_qty = 1
+reagents = [ { id = 14047, qty = 5 } ]
