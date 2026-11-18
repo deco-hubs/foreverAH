@@ -4,8 +4,8 @@
 [auction_house]
 region   = "eu"
 ruleset  = 2      # 1 PvP, 2 Normal, 3 Roleplay, 15 Roleplay PvP
-house_id = 114    # Horde. UNCONFIRMED for the Normal ruleset: run the "houses" command once and
-                  # compare a price you can see in game. EU Horde candidates: 113, 114, 115, 120, 124.
+house_id = 114    # Horde, Normal ruleset. Confirmed 2026-11-18 against in-game prices
+                  # (Peacebloom, Arcanite Bar, Black Lotus). Other EU Horde houses: 113, 115, 120, 124.
 locale   = "en_GB"
 
 [materials]

@@ -11,8 +11,8 @@ A WoW: Forever auction house price tracker for one Horde auction house: EU, rule
   - `/data/wow/ruleset/{r}/auctions/{house}` returns auctions, with `buyout` per auction.
   - `/data/wow/ruleset/{r}/auctions/{house}/commodities` returns commodities, with `unit_price`.
 - **Quirk:** the ruleset in the path reportedly doesn't filter results; the house id decides.
-- **EU Horde house ids:** 113, 114, 115, 120 and 124. Which one is Normal is UNCONFIRMED; the `houses` command helps the user decide.
-- **Item IDs:** vanilla IDs, assumed and unverified. Many items 404 on `/data/wow/item/{id}` in `static-forever`.
+- **EU Horde house ids:** 113, 114, 115, 120 and 124. The user's house is **114** (Normal, Horde), confirmed on 2026-11-18 by matching in-game prices.
+- **Item IDs:** vanilla IDs work: all 72 tracked items were found on the first live run (2026-11-18). Many items 404 on `/data/wow/item/{id}` in `static-forever`.
 
 ## Code map
 - `ah/blizzard.py`: HTTP client.
