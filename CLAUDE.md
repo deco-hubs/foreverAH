@@ -18,8 +18,8 @@ A WoW: Forever auction house price tracker for one Horde auction house: EU, rule
 - `ah/blizzard.py`: HTTP client.
 - `ah/stats.py`: listings to min / market (mean of the cheapest 15% of units) / qty, plus gold formatting.
 - `ah/history.py`: CSV history, plus `state.json` for skipping duplicate snapshots by Last-Modified.
-- `ah/site.py`: dashboard with tables, sparklines and a 30-day chart per item. The `[dashboard] featured` category ("Fishing") is shown first. The crafting-profit section is hidden when config has no `[[recipe]]`; the user removed the bolt and smelting recipes on 2026-11-18.
-- `ah/__main__.py`: CLI commands `fetch`, `houses` and `report`.
+- `ah/site.py`: dashboard table with price changes over 24 h / 7 d / 1 m / 3 m / 6 m (vs that day's average) and a 7-day sparkline. Each item has a chart drawn in the browser from embedded data, with ranges 7 days / 1 / 3 / 6 months / Max (4-hour points up to a month, daily beyond). The `[dashboard] featured` category ("Fishing") is shown first. The crafting-profit section is hidden when config has no `[[recipe]]`; the user removed the bolt and smelting recipes on 2026-11-18.
+- `ah/__main__.py`: CLI commands `fetch`, `houses` and `report`. `report` loads 400 days of history.
 
 ## User's interests
 - Fishing reagents (Stonescale Eel, Firefin Snapper and the like) matter most. The user doesn't care about bolts or smelting.
@@ -33,4 +33,4 @@ A WoW: Forever auction house price tracker for one Horde auction house: EU, rule
 - Deal alerts: market well below its 7-day average, e.g. a GitHub issue or a push notification.
 - Item names from the API where available.
 - Compare factions (Alliance and Blackwater houses).
-- Daily roll-up of old hourly rows if `data/` gets large (~60 KB/day at ~70 items).
+- Daily roll-up of old hourly rows if `data/` gets large: about 90 KB/day at 92 items, so roughly 33 MB a year.

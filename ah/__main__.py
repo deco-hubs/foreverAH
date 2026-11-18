@@ -38,7 +38,7 @@ def fetch(cfg):
 
 
 def report(cfg):
-    hist = history.load(days=60)
+    hist = history.load(days=400)   # enough for 6-month changes and a year of chart
     if not hist:
         print("No history yet: run 'fetch' first.")
         return

@@ -16,9 +16,10 @@ def _pct(new, old):
     return (new / old - 1) * 100
 
 
-def _pct_html(v):
+def _pct_html(v, need=None):
     if v is None:
-        return '<span class="muted">–</span>'
+        tip = f' title="Needs {need} of history"' if need else ""
+        return f'<span class="muted"{tip}>–</span>'
     cls = "up" if v > 0.5 else "down" if v < -0.5 else "muted"
     return f'<span class="{cls}">{v:+.0f}%</span>'
 
@@ -28,6 +29,19 @@ def _at_or_before(rows, when):
     for r in rows:
         if r[0] <= when:
             best = r
+        else:
+            break
+    return best
+
+
+def _daily_avg_at(daily, when):
+    """Average market on the day containing `when`; None if history doesn't reach back that far."""
+    if not daily or daily[0][0] > when + timedelta(hours=12):
+        return None
+    best = None
+    for t, _, mk in daily:
+        if t <= when:
+            best = mk
         else:
             break
     return best
@@ -61,39 +75,13 @@ def _sparkline(points, w=120, h=28):
             f'<polyline points="{xy}" fill="none" stroke="var(--accent)" stroke-width="1.5"/></svg>')
 
 
-def _chart(points, name, w=720, h=220, pad_l=78, pad_b=26, pad_t=14):
-    if len(points) < 2:
-        return '<p class="muted">The chart appears after a few hours of data.</p>'
-    ts = [p[0].timestamp() for p in points]
-    mins, mks = [p[1] for p in points], [p[2] for p in points]
-    lo, hi = min(mins + mks), max(mins + mks)
-    lo, hi = lo * 0.95, hi * 1.05
-    span_t, span_v = (ts[-1] - ts[0]) or 1, (hi - lo) or 1
-    X = lambda t: pad_l + (t - ts[0]) / span_t * (w - pad_l - 12)
-    Y = lambda v: pad_t + (1 - (v - lo) / span_v) * (h - pad_t - pad_b)
-    line = lambda vals: " ".join(f"{X(t):.1f},{Y(v):.1f}" for t, v in zip(ts, vals))
-    grid = "".join(
-        f'<line x1="{pad_l}" x2="{w - 12}" y1="{Y(v):.1f}" y2="{Y(v):.1f}" class="grid"/>'
-        f'<text x="{pad_l - 8}" y="{Y(v) + 4:.1f}" text-anchor="end" class="axis">{gold(v)}</text>'
-        for v in (lo + span_v * f for f in (0.1, 0.5, 0.9)))
-    d0, d1 = points[0][0].strftime("%d %b"), points[-1][0].strftime("%d %b")
-    return f"""<svg class="chart" viewBox="0 0 {w} {h}" role="img" aria-label="{html.escape(name)} price history">
-{grid}
-<polyline points="{line(mins)}" fill="none" stroke="var(--muted)" stroke-width="1" stroke-dasharray="3 3"/>
-<polyline points="{line(mks)}" fill="none" stroke="var(--accent)" stroke-width="2"/>
-<text x="{pad_l}" y="{h - 6}" class="axis">{d0}</text>
-<text x="{w - 12}" y="{h - 6}" text-anchor="end" class="axis">{d1}</text>
-</svg>
-<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;· 4-hour averages, last 30 days</p>"""
-
-
 # ---------- page -------------------------------------------------------------
 
 def build(cfg, hist, latest_time, out_path):
     ah = cfg["auction_house"]
     names = {i["id"]: i["name"] for i in cfg["items"]}
     now = latest_time
-    current, rows_html, never_seen = {}, {}, []
+    current, rows_html, never_seen, chart_data = {}, {}, [], {}
 
     for item in cfg["items"]:
         iid, rows = item["id"], hist.get(item["id"], [])
@@ -107,21 +95,33 @@ def build(cfg, hist, latest_time, out_path):
         day_ago = _at_or_before(rows, now - timedelta(hours=24))
         week = [r for r in rows if r[0] >= now - timedelta(days=7)]
         avg7 = sum(r[2] for r in week) / len(week) if week else None
-        spark = _bucket(week, 2)
-        detail = _bucket([r for r in rows if r[0] >= now - timedelta(days=30)], 4)
+        daily = _bucket(rows, 24)
+        changes = [_pct(last[2], day_ago[2]) if day_ago else None]
+        for days in (7, 30, 91, 182):
+            then = _daily_avg_at(daily, now - timedelta(days=days))
+            changes.append(_pct(last[2], then) if then else None)
+        chart_data[iid] = {
+            "h": [[int(t.timestamp() // 3600), round(mn), round(mk)]
+                  for t, mn, mk in _bucket([r for r in rows if r[0] >= now - timedelta(days=31)], 4)],
+            "d": [[int(t.timestamp() // 3600), round(mn), round(mk)] for t, mn, mk in daily],
+        }
         name = html.escape(item["name"])
         status = "" if listed_now else ' <span class="tag">not listed now</span>'
+        change_cells = "".join(f'<td class="num">{_pct_html(c, need)}</td>'
+                               for c, need in zip(changes, ("1 day", "7 days", "1 month", "3 months", "6 months")))
         rows_html.setdefault(item.get("category", "Other"), []).append(f"""
-<tr class="item" data-id="{iid}" tabindex="0" title="Click for the 30-day chart">
+<tr class="item" data-id="{iid}" tabindex="0" title="Click for the price chart">
   <td><a href="https://www.wowhead.com/forever/item={iid}" target="_blank" rel="noopener">{name}</a>{status}</td>
   <td class="num"><b>{gold(last[2])}</b><div class="small muted">min {gold(last[1])}</div></td>
   <td class="num">{last[3]:,}</td>
-  <td class="num">{_pct_html(_pct(last[2], day_ago[2]) if day_ago else None)}</td>
   <td class="num">{gold(avg7)}</td>
-  <td class="num">{_pct_html(_pct(last[2], avg7))}</td>
-  <td>{_sparkline(spark)}</td>
+  {change_cells}
+  <td class="spark-cell">{_sparkline(_bucket(week, 2))}</td>
 </tr>
-<tr class="detail" id="d{iid}" hidden><td colspan="7">{_chart(detail, item["name"])}</td></tr>""")
+<tr class="detail" id="d{iid}" hidden><td colspan="11"><div class="ranges" role="group" aria-label="Chart range">
+<button data-r="7">7 days</button><button data-r="30" class="on">1 month</button><button data-r="91">3 months</button><button data-r="182">6 months</button><button data-r="0">Max</button></div>
+<div class="chartbox" data-id="{iid}"></div>
+<p class="small muted"><span class="key solid"></span> market value &nbsp; <span class="key dashed"></span> cheapest listing &nbsp;<span class="res"></span></p></td></tr>""")
 
     # crafting profit
     craft = []
@@ -163,8 +163,8 @@ def build(cfg, hist, latest_time, out_path):
 <tbody>{"".join(craft_rows)}</tbody></table>"""
     sections = "".join(
         f"""<h2>{html.escape(cat)}</h2>
-<table><thead><tr><th>Item</th><th class="num">Market value</th><th class="num">Listed</th>
-<th class="num">24 h</th><th class="num">7-day avg</th><th class="num">vs 7-day</th><th>Last 7 days</th></tr></thead>
+<table><thead><tr><th>Item</th><th class="num">Market value</th><th class="num">Listed</th><th class="num">7-day avg</th>
+<th class="num">24 h</th><th class="num">7 d</th><th class="num">1 m</th><th class="num">3 m</th><th class="num">6 m</th><th>Last 7 days</th></tr></thead>
 <tbody>{"".join(rows_html[cat])}</tbody></table>""" for cat in order)
 
     flagged = ""
@@ -199,19 +199,53 @@ a {{ color:inherit; text-decoration-color:var(--line); }} a:hover {{ text-decora
 .chart {{ width:100%; height:auto; }} .grid {{ stroke:var(--line); }} .axis {{ fill:var(--muted); font-size:11px; }}
 .key {{ display:inline-block; width:18px; vertical-align:middle; border-top:2px solid var(--accent); }}
 .key.dashed {{ border-top:1px dashed var(--muted); }}
-@media (max-width:700px) {{ th:nth-child(5), td:nth-child(5), th:nth-child(7), td:nth-child(7) {{ display:none; }} }}
+.ranges {{ display:flex; gap:6px; margin-bottom:8px; }}
+.ranges button {{ font:inherit; font-size:12px; padding:3px 10px; border:1px solid var(--line); border-radius:6px; background:transparent; color:var(--muted); cursor:pointer; }}
+.ranges button.on {{ color:var(--fg); border-color:var(--accent); }}
+th:nth-child(n+5):nth-child(-n+9) {{ width:52px; }}
+@media (max-width:900px) {{ th:nth-child(4), td:nth-child(4), .spark-cell, th:last-child {{ display:none; }} }}
+@media (max-width:640px) {{ th:nth-child(3), td:nth-child(3), th:nth-child(8), td:nth-child(8), th:nth-child(9), td:nth-child(9) {{ display:none; }} }}
 </style></head><body><main>
 <h1>Forever auction house</h1>
 <p class="sub">{html.escape(ah['region'].upper())} · ruleset {ah['ruleset']} · Horde (house {ah['house_id']}) · snapshot <time data-utc="{now.isoformat()}">{now.strftime('%d %b %Y %H:%M')} UTC</time></p>
-<p class="small muted">Market value = average price of the cheapest 15% of units listed. Click any row for its 30-day chart.</p>
+<p class="small muted">Market value = average price of the cheapest 15% of units listed. 24 h compares with the snapshot a day ago; 7 d to 6 m compare with that day's average price. "–" means not enough history yet. Click any row for its chart.</p>
 {craft_html}
 {sections}
 {flagged}
 <p class="small muted" style="margin-top:40px">Data: Blizzard Battle.net API (undocumented WoW: Forever endpoints), updated hourly by GitHub Actions. Item names link to Wowhead's WoW: Forever database.</p>
 </main>
 <script>
+const HIST = {json.dumps(chart_data, separators=(",", ":"))};
+const gold = c => {{ c = Math.round(c); const g = Math.floor(c / 10000), s = Math.floor(c / 100) % 100, k = c % 100;
+  if (g >= 100) return g.toLocaleString('nb-NO') + 'g'; if (g) return s ? g + 'g ' + s + 's' : g + 'g';
+  if (s) return k ? s + 's ' + k + 'c' : s + 's'; return k + 'c'; }};
+function draw(box, range) {{
+  const data = HIST[box.dataset.id], res = box.parentNode.querySelector('.res');
+  const src = range && range <= 30 ? data.h : data.d, cut = range ? (src.at(-1)[0] - range * 24) : -Infinity;
+  const pts = src.filter(p => p[0] >= cut);
+  res.textContent = '· ' + (src === data.h ? '4-hour' : 'daily') + ' averages';
+  if (pts.length < 2) {{ box.innerHTML = '<p class="muted">Not enough history for this range yet.</p>'; return; }}
+  const W = 720, H = 220, L = 78, B = 26, T = 14, R = 12;
+  const vals = pts.flatMap(p => [p[1], p[2]]); let lo = Math.min(...vals) * 0.95, hi = Math.max(...vals) * 1.05;
+  const t0 = pts[0][0], t1 = pts.at(-1)[0], X = t => L + (t - t0) / ((t1 - t0) || 1) * (W - L - R), Y = v => T + (1 - (v - lo) / ((hi - lo) || 1)) * (H - T - B);
+  const line = i => pts.map(p => X(p[0]).toFixed(1) + ',' + Y(p[i]).toFixed(1)).join(' ');
+  const fmt = h => new Date(h * 3600e3).toLocaleDateString([], {{ day: 'numeric', month: 'short' }});
+  let grid = '';
+  for (const f of [0.1, 0.5, 0.9]) {{ const v = lo + (hi - lo) * f; grid += `<line x1="${{L}}" x2="${{W - R}}" y1="${{Y(v).toFixed(1)}}" y2="${{Y(v).toFixed(1)}}" class="grid"/><text x="${{L - 8}}" y="${{(Y(v) + 4).toFixed(1)}}" text-anchor="end" class="axis">${{gold(v)}}</text>`; }}
+  box.innerHTML = `<svg class="chart" viewBox="0 0 ${{W}} ${{H}}" role="img" aria-label="Price history">${{grid}}
+<polyline points="${{line(1)}}" fill="none" stroke="var(--muted)" stroke-width="1" stroke-dasharray="3 3"/>
+<polyline points="${{line(2)}}" fill="none" stroke="var(--accent)" stroke-width="2"/>
+<text x="${{L}}" y="${{H - 6}}" class="axis">${{fmt(t0)}}</text><text x="${{W - R}}" y="${{H - 6}}" text-anchor="end" class="axis">${{fmt(t1)}}</text></svg>`;
+}}
+document.querySelectorAll('tr.detail').forEach(d => {{
+  d.querySelectorAll('.ranges button').forEach(b => b.addEventListener('click', () => {{
+    d.querySelectorAll('.ranges button').forEach(x => x.classList.toggle('on', x === b));
+    draw(d.querySelector('.chartbox'), Number(b.dataset.r));
+  }}));
+}});
 document.querySelectorAll('tr.item').forEach(r => {{
-  const toggle = e => {{ if (e.target.closest('a')) return; const d = document.getElementById('d' + r.dataset.id); d.hidden = !d.hidden; }};
+  const toggle = e => {{ if (e.target.closest('a')) return; const d = document.getElementById('d' + r.dataset.id); d.hidden = !d.hidden;
+    if (!d.hidden && !d.querySelector('svg')) draw(d.querySelector('.chartbox'), Number(d.querySelector('.ranges .on').dataset.r)); }};
   r.addEventListener('click', toggle);
   r.addEventListener('keydown', e => {{ if (e.key === 'Enter' || e.key === ' ') {{ e.preventDefault(); toggle(e); }} }});
 }});
