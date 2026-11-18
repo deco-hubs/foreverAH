@@ -18,8 +18,11 @@ A WoW: Forever auction house price tracker for one Horde auction house: EU, rule
 - `ah/blizzard.py`: HTTP client.
 - `ah/stats.py`: listings to min / market (mean of the cheapest 15% of units) / qty, plus gold formatting.
 - `ah/history.py`: CSV history, plus `state.json` for skipping duplicate snapshots by Last-Modified.
-- `ah/site.py`: dashboard with tables, sparklines, a 30-day chart per item and crafting profit (5% AH cut).
+- `ah/site.py`: dashboard with tables, sparklines and a 30-day chart per item. The `[dashboard] featured` category ("Fishing") is shown first. The crafting-profit section is hidden when config has no `[[recipe]]`; the user removed the bolt and smelting recipes on 2026-11-18.
 - `ah/__main__.py`: CLI commands `fetch`, `houses` and `report`.
+
+## User's interests
+- Fishing reagents (Stonescale Eel, Firefin Snapper and the like) matter most. The user doesn't care about bolts or smelting.
 
 ## Conventions
 - Read-only: never call anything that posts or buys.

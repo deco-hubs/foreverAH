@@ -8,6 +8,9 @@ house_id = 114    # Horde, Normal ruleset. Confirmed 2026-11-18 against in-game 
                   # (Peacebloom, Arcanite Bar, Black Lotus). Other EU Horde houses: 113, 115, 120, 124.
 locale   = "en_GB"
 
+[dashboard]
+featured = "Fishing"   # this category is shown first, at the top of the page
+
 [materials]
 # ---------------------------------------------------------------------------
 # Items to track. IDs are the original (vanilla) item IDs. WoW: Forever reuses
@@ -78,11 +81,6 @@ items = [
   { id = 4338,  name = "Mageweave Cloth",     category = "Cloth and leather" },
   { id = 14047, name = "Runecloth",           category = "Cloth and leather" },
   { id = 14256, name = "Felcloth",            category = "Cloth and leather" },
-  { id = 2996,  name = "Bolt of Linen Cloth", category = "Cloth and leather" },
-  { id = 2997,  name = "Bolt of Woolen Cloth",category = "Cloth and leather" },
-  { id = 4305,  name = "Bolt of Silk Cloth",  category = "Cloth and leather" },
-  { id = 4339,  name = "Bolt of Mageweave",   category = "Cloth and leather" },
-  { id = 14048, name = "Bolt of Runecloth",   category = "Cloth and leather" },
 
   # Leather
   { id = 2934,  name = "Ruined Leather Scraps", category = "Cloth and leather" },
@@ -97,79 +95,47 @@ items = [
   { id = 8169,  name = "Thick Hide",          category = "Cloth and leather" },
   { id = 8171,  name = "Rugged Hide",         category = "Cloth and leather" },
 
+  # Fishing: raw fish, plus the alchemy oils made from them (to compare fish vs oil prices)
+  { id = 13422, name = "Stonescale Eel",              category = "Fishing" },
+  { id = 6359,  name = "Firefin Snapper",             category = "Fishing" },
+  { id = 6358,  name = "Oily Blackmouth",             category = "Fishing" },
+  { id = 6522,  name = "Deviate Fish",                category = "Fishing" },
+  { id = 13759, name = "Raw Nightfin Snapper",        category = "Fishing" },
+  { id = 13760, name = "Raw Sunscale Salmon",         category = "Fishing" },
+  { id = 13889, name = "Raw Whitescale Salmon",       category = "Fishing" },
+  { id = 13754, name = "Raw Glossy Mightfish",        category = "Fishing" },
+  { id = 13893, name = "Large Raw Mightfish",         category = "Fishing" },
+  { id = 13755, name = "Winter Squid",                category = "Fishing" },
+  { id = 13756, name = "Raw Summer Bass",             category = "Fishing" },
+  { id = 13758, name = "Raw Redgill",                 category = "Fishing" },
+  { id = 13888, name = "Darkclaw Lobster",            category = "Fishing" },
+  { id = 8365,  name = "Raw Mithril Head Trout",      category = "Fishing" },
+  { id = 4603,  name = "Raw Spotted Yellowtail",      category = "Fishing" },
+  { id = 6362,  name = "Raw Rockscale Cod",           category = "Fishing" },
+  { id = 6308,  name = "Raw Bristle Whisker Catfish", category = "Fishing" },
+  { id = 6361,  name = "Raw Rainbow Fin Albacore",    category = "Fishing" },
+  { id = 6317,  name = "Raw Loch Frenzy",             category = "Fishing" },
+  { id = 6289,  name = "Raw Longjaw Mud Snapper",     category = "Fishing" },
+  { id = 6303,  name = "Raw Slitherskin Mackerel",    category = "Fishing" },
+  { id = 6291,  name = "Raw Brilliant Smallfish",     category = "Fishing" },
+  { id = 13423, name = "Stonescale Oil",              category = "Fishing" },
+  { id = 6371,  name = "Fire Oil",                    category = "Fishing" },
+  { id = 6370,  name = "Blackmouth Oil",              category = "Fishing" },
+
   # Your own items: add lines like this one (category can be anything you like)
   # { id = 12345, name = "Some item", category = "My list" },
 ]
 
 # ---------------------------------------------------------------------------
-# Crafting profit. Each recipe: what it makes, how many, and the reagents.
-# These are EXAMPLES from the original game, to check against Forever (recipes
-# may have changed). Reagents you buy from a vendor: add vendor_price in copper.
-# Profit = sale value after the 5% auction house cut minus reagent cost.
+# Crafting profit (optional). Empty = the section is hidden from the dashboard.
+# To bring it back, add [[recipe]] blocks like this one (remove the # marks):
+#
+# [[recipe]]
+# name = "Stonescale Oil"
+# makes = 13423
+# makes_qty = 1
+# reagents = [ { id = 13422, qty = 1 }, { id = 3371, qty = 1, vendor_price = 4 } ]   # eel + Empty Vial
+#
+# Every auction house item in a recipe must also be in the [materials] list.
+# Vendor items take vendor_price in copper. Profit = sale value after the 5% AH cut minus cost.
 # ---------------------------------------------------------------------------
-
-[[recipe]]
-name = "Smelt Copper"
-makes = 2840
-makes_qty = 1
-reagents = [ { id = 2770, qty = 1 } ]
-
-[[recipe]]
-name = "Smelt Bronze"
-makes = 2841
-makes_qty = 2
-reagents = [ { id = 2840, qty = 1 }, { id = 3576, qty = 1 } ]
-
-[[recipe]]
-name = "Smelt Iron"
-makes = 3575
-makes_qty = 1
-reagents = [ { id = 2772, qty = 1 } ]
-
-[[recipe]]
-name = "Smelt Mithril"
-makes = 3860
-makes_qty = 1
-reagents = [ { id = 3858, qty = 1 } ]
-
-[[recipe]]
-name = "Smelt Thorium"
-makes = 12359
-makes_qty = 1
-reagents = [ { id = 10620, qty = 1 } ]
-
-[[recipe]]
-name = "Transmute: Arcanite"
-makes = 12360
-makes_qty = 1
-reagents = [ { id = 12359, qty = 1 }, { id = 12363, qty = 1 } ]
-
-[[recipe]]
-name = "Bolt of Linen Cloth"
-makes = 2996
-makes_qty = 1
-reagents = [ { id = 2589, qty = 2 } ]
-
-[[recipe]]
-name = "Bolt of Woolen Cloth"
-makes = 2997
-makes_qty = 1
-reagents = [ { id = 2592, qty = 3 } ]
-
-[[recipe]]
-name = "Bolt of Silk Cloth"
-makes = 4305
-makes_qty = 1
-reagents = [ { id = 4306, qty = 4 } ]
-
-[[recipe]]
-name = "Bolt of Mageweave"
-makes = 4339
-makes_qty = 1
-reagents = [ { id = 4338, qty = 5 } ]
-
-[[recipe]]
-name = "Bolt of Runecloth"
-makes = 14048
-makes_qty = 1
-reagents = [ { id = 14047, qty = 5 } ]

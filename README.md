@@ -37,8 +37,9 @@ The charts fill in over the first day. "24 h" and "7-day" figures need a day and
 
 ## Changing what's tracked
 Edit `config.toml` on GitHub (click the file, then the pencil icon):
-- **Items:** add a line under `[materials]` with the item's ID, which is the number in its Wowhead URL.
-- **Recipes:** add a `[[recipe]]` block. Reagents bought from a vendor take `vendor_price` in copper.
+- **Items:** add a line under `[materials]` with the item's ID, which is the number in its Wowhead URL (Wowhead has a WoW: Forever section: `wowhead.com/forever/item=13422`).
+- **Top section:** `[dashboard] featured` picks which category is shown first. It's currently "Fishing".
+- **Recipes (optional):** add `[[recipe]]` blocks to show a crafting-profit table. There's a commented example in `config.toml`. With no recipes, the section is hidden.
 
 The item IDs and recipes are from the original game and haven't been checked against WoW: Forever. Items never seen on the auction house are listed at the bottom of the dashboard, so a wrong ID shows up there.
 

@@ -113,7 +113,7 @@ def build(cfg, hist, latest_time, out_path):
         status = "" if listed_now else ' <span class="tag">not listed now</span>'
         rows_html.setdefault(item.get("category", "Other"), []).append(f"""
 <tr class="item" data-id="{iid}" tabindex="0" title="Click for the 30-day chart">
-  <td><a href="https://www.wowhead.com/classic/item={iid}" target="_blank" rel="noopener">{name}</a>{status}</td>
+  <td><a href="https://www.wowhead.com/forever/item={iid}" target="_blank" rel="noopener">{name}</a>{status}</td>
   <td class="num"><b>{gold(last[2])}</b><div class="small muted">min {gold(last[1])}</div></td>
   <td class="num">{last[3]:,}</td>
   <td class="num">{_pct_html(_pct(last[2], day_ago[2]) if day_ago else None)}</td>
@@ -155,11 +155,17 @@ def build(cfg, hist, latest_time, out_path):
   <td class="num"><b class="{'up' if profit > 0 else 'down'}">{gold(profit)}</b></td>
   <td class="num">{_pct_html(margin)}</td></tr>""")
 
+    featured = cfg.get("dashboard", {}).get("featured")
+    order = ([featured] if featured in rows_html else []) + [c for c in rows_html if c != featured]
+    craft_html = "" if not craft_rows else f"""<h2>Crafting profit</h2>
+<p class="small muted">Sale value is after the 5% auction house cut. Recipes and reagents are set in config.toml.</p>
+<table><thead><tr><th>Recipe</th><th class="num">Materials cost</th><th class="num">Sells for</th><th class="num">Profit per craft</th><th class="num">Margin</th></tr></thead>
+<tbody>{"".join(craft_rows)}</tbody></table>"""
     sections = "".join(
         f"""<h2>{html.escape(cat)}</h2>
 <table><thead><tr><th>Item</th><th class="num">Market value</th><th class="num">Listed</th>
 <th class="num">24 h</th><th class="num">7-day avg</th><th class="num">vs 7-day</th><th>Last 7 days</th></tr></thead>
-<tbody>{"".join(rows)}</tbody></table>""" for cat, rows in rows_html.items())
+<tbody>{"".join(rows_html[cat])}</tbody></table>""" for cat in order)
 
     flagged = ""
     if never_seen:
@@ -198,13 +204,10 @@ a {{ color:inherit; text-decoration-color:var(--line); }} a:hover {{ text-decora
 <h1>Forever auction house</h1>
 <p class="sub">{html.escape(ah['region'].upper())} · ruleset {ah['ruleset']} · Horde (house {ah['house_id']}) · snapshot <time data-utc="{now.isoformat()}">{now.strftime('%d %b %Y %H:%M')} UTC</time></p>
 <p class="small muted">Market value = average price of the cheapest 15% of units listed. Click any row for its 30-day chart.</p>
-<h2>Crafting profit</h2>
-<p class="small muted">Sale value is after the 5% auction house cut. Recipes and reagents are set in config.toml.</p>
-<table><thead><tr><th>Recipe</th><th class="num">Materials cost</th><th class="num">Sells for</th><th class="num">Profit per craft</th><th class="num">Margin</th></tr></thead>
-<tbody>{"".join(craft_rows)}</tbody></table>
+{craft_html}
 {sections}
 {flagged}
-<p class="small muted" style="margin-top:40px">Data: Blizzard Battle.net API (undocumented WoW: Forever endpoints), updated hourly by GitHub Actions. Item IDs link to Wowhead's Classic database.</p>
+<p class="small muted" style="margin-top:40px">Data: Blizzard Battle.net API (undocumented WoW: Forever endpoints), updated hourly by GitHub Actions. Item names link to Wowhead's WoW: Forever database.</p>
 </main>
 <script>
 document.querySelectorAll('tr.item').forEach(r => {{
