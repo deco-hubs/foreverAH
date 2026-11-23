@@ -26,6 +26,7 @@ items = [
   { id = 2449,  name = "Earthroot",           category = "Herbs" },
   { id = 785,   name = "Mageroyal",           category = "Herbs" },
   { id = 2450,  name = "Briarthorn",          category = "Herbs" },
+  { id = 2452,  name = "Swiftthistle",        category = "Herbs" },
   { id = 2453,  name = "Bruiseweed",          category = "Herbs" },
   { id = 3820,  name = "Stranglekelp",        category = "Herbs" },
   { id = 3355,  name = "Wild Steelbloom",     category = "Herbs" },
