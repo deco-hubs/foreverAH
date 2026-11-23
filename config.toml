@@ -122,6 +122,9 @@ items = [
   { id = 6371,  name = "Fire Oil",                    category = "Fishing" },
   { id = 6370,  name = "Blackmouth Oil",              category = "Fishing" },
 
+  # Pearls (from Big-Mouth Clams)
+  { id = 13926, name = "Golden Pearl",                category = "Pearls" },
+
   # Your own items: add lines like this one (category can be anything you like)
   # { id = 12345, name = "Some item", category = "My list" },
 ]
