@@ -177,3 +177,10 @@ note = "Comparison: 4 Mithril Ore + 2 Truesilver Ore (smelted to bars) + 4 Solid
 makes = 7967
 makes_qty = 1
 reagents = [ { id = 3858, qty = 4 }, { id = 7911, qty = 2 }, { id = 7966, qty = 4 } ]
+
+[[recipe]]
+name = "Solid Grinding Stone"
+note = "4 Solid Stone, bought on the auction house"
+makes = 7966
+makes_qty = 1
+reagents = [ { id = 7912, qty = 4 } ]

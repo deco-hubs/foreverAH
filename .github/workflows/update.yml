@@ -46,5 +46,10 @@ jobs:
             echo "Nothing changed."
           else
             git commit -m "Prices $(date -u +'%Y-%m-%d %H:%M') UTC"
-            git push
+            # If someone pushed a change (e.g. to config.toml) while this run was going,
+            # rebase onto it before pushing instead of failing.
+            for attempt in 1 2 3; do
+              git pull --rebase --quiet origin main && git push && break
+              sleep 5
+            done
           fi
