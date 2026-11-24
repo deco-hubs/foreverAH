@@ -32,6 +32,7 @@ A WoW: Forever auction house price tracker for one Horde auction house: EU, rule
 
 ## User's interests
 - Fishing reagents (Stonescale Eel, Firefin Snapper and the like) matter most. The user doesn't care about bolts or smelting.
+- The user holds 1 000 Stonescale Eel bought at about 1s each (in config as an [[investment]] with bought_qty/bought_at). Level 49 warrior, Blacksmithing 237, saving for the level 60 riding (1 000g) + epic mount (200g); plans to level BS 240–300 later with mined or cheaper Thorium.
 
 ## Conventions
 - Read-only: never call anything that posts or buys.

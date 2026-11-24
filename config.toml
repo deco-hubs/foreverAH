@@ -312,6 +312,16 @@ later_use = "In Classic, one of the most farmed items all the way through the fi
 risk = "Onyxia alone is a smaller fire market than Molten Core was. Not tracked before today, so the range starts now."
 
 [[investment]]
+id = 13422   # Stonescale Eel (your position)
+horizon = "short"
+catalyst = "Raids open"
+bought_qty = 1000
+bought_at = "1s"
+thesis = "Your own buy. The eel becomes Stonescale Oil, which goes into Flask of the Titans (the tank flask), so demand should pick up when raids open on 9 December. Already up from about 1s 40c to 1s 70c–2s since tracking began."
+later_use = "Tanks flask for every raid tier. Right now the eel sells for slightly more than the oil, so sell eels as they are rather than turning them into oil."
+risk = "Everyone fishes it: thousands are listed most of the day. Selling 1 000 at once would push the price down, so sell in small stacks in the expensive hours (around 11:00–14:00)."
+
+[[investment]]
 id = 13423   # Stonescale Oil
 horizon = "long"
 catalyst = "Raids open"
