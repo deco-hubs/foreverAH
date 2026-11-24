@@ -34,8 +34,12 @@ def settings(cfg):
     return {**DEFAULTS, **cfg.get("trends", {})}
 
 
+MIN_SNAPSHOTS_PER_DAY = 12   # a 24 h window with fewer snapshots is too partial to trust (it may cover only cheap night hours)
+
+
 def daily_means(rows, now, days):
-    """[(days_ago, mean_market, mean_qty)] oldest first, in rolling 24 h windows ending at `now`."""
+    """[(days_ago, mean_market, mean_qty)] oldest first, in rolling 24 h windows ending at `now`.
+    Windows with fewer than MIN_SNAPSHOTS_PER_DAY snapshots are skipped."""
     buckets = {}
     since = now - timedelta(days=days)
     for t, _, mk, q in rows:
@@ -46,7 +50,7 @@ def daily_means(rows, now, days):
             k -= 1          # a snapshot exactly on a boundary belongs to the newer day
         buckets.setdefault(k, []).append((mk, q))
     return [(k, st.mean(m for m, _ in v), st.mean(q for _, q in v))
-            for k, v in sorted(buckets.items(), reverse=True)]
+            for k, v in sorted(buckets.items(), reverse=True) if len(v) >= MIN_SNAPSHOTS_PER_DAY]
 
 
 def fit(points):
@@ -132,3 +136,55 @@ def best_window(index, width=3):
     """Cheapest and dearest `width`-hour windows (start hour, average index)."""
     sums = [(h, st.mean(index[(h + i) % 24] for i in range(width))) for h in range(24)]
     return min(sums, key=lambda x: x[1]), max(sums, key=lambda x: x[1])
+
+
+def category_index(hist_subset, now, days=30):
+    """How a whole category moved: per day, the median of each item's daily average
+    divided by that item's own average over the window (100 = normal level).
+    Returns [(days_ago, index)] oldest first; erratic items are left out."""
+    per_day = {}
+    for rows in hist_subset.values():
+        n = noise(rows, now)
+        if n is not None and n > DEFAULTS["max_noise"]:
+            continue
+        dm = daily_means(rows, now, days)
+        if len(dm) < 2:
+            continue
+        base = st.mean(m for _, m, _ in dm)
+        for k, m, _ in dm:
+            per_day.setdefault(k, []).append(m / base * 100)
+    series = [(k, st.median(v)) for k, v in sorted(per_day.items(), reverse=True) if len(v) >= 2]
+    if not series:
+        return series
+    scale = 100 / st.mean(v for _, v in series)     # so the line averages 100 over the window
+    return [(k, v * scale) for k, v in series]
+
+
+def supply_series(hist_subset, now, days=30):
+    """Total units listed per day across a category: [(days_ago, units)] oldest first."""
+    per_day = {}
+    for rows in hist_subset.values():
+        for k, _, q in daily_means(rows, now, days):
+            per_day[k] = per_day.get(k, 0) + q
+    return sorted(per_day.items(), reverse=True)
+
+
+def recipe_profit_history(recipe, hist, now, days=30, ah_cut=0.05):
+    """Daily profit per craft, using each day's average prices: [(days_ago, profit_copper)] oldest first.
+    Only days where the product and every auction house reagent had a price are included."""
+    def by_day(item_id):
+        return {k: m for k, m, _ in daily_means(hist.get(item_id, []), now, days)}
+    product = by_day(recipe["makes"])
+    reagents = [(g, None if g.get("vendor_price") else by_day(g["id"])) for g in recipe["reagents"]]
+    out = []
+    for k in sorted(product, reverse=True):
+        cost, ok = 0, True
+        for g, series in reagents:
+            price = g["vendor_price"] if series is None else series.get(k)
+            if price is None:
+                ok = False
+                break
+            cost += price * g["qty"]
+        if ok:
+            out.append((k, product[k] * recipe.get("makes_qty", 1) * (1 - ah_cut) - cost))
+    return out

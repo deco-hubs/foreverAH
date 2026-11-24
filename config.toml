@@ -9,7 +9,8 @@ house_id = 114    # Horde, Normal ruleset. Confirmed 2026-11-18 against in-game 
 locale   = "en_GB"
 
 [dashboard]
-featured = "Fishing"   # this category is shown first, at the top of the page
+featured = "Fishing"   # summarised "at a glance" on the Trends tab
+tab_order = ["Crafting", "Ores and bars", "Fishing", "Pearls", "Herbs"]   # tabs not listed follow after, then Trends
 timezone = "Europe/Oslo"   # for the "best time to buy" chart
 
 [trends]
