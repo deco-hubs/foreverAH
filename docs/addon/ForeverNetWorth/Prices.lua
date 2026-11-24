@@ -1,6 +1,7 @@
 -- Written by the Forever AH tracker on every new auction house snapshot. Don't edit: it's replaced.
 -- items[itemID] = market value in copper (average of the cheapest 15% of units listed).
-ForeverNetWorthPrices = {
+local _, ns = ...
+ns.prices = {
   updated = 1795515720,
   region = "eu", house = 114,
   items = {

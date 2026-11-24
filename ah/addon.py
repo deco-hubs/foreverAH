@@ -42,7 +42,8 @@ def write_prices(listings, snap_time, cfg, docs_dir, commodity_ids=None, force=F
     lines = [
         "-- Written by the Forever AH tracker on every new auction house snapshot. Don't edit: it's replaced.",
         "-- items[itemID] = market value in copper (average of the cheapest 15% of units listed).",
-        "ForeverNetWorthPrices = {",
+        "local _, ns = ...",
+        "ns.prices = {",
         f"  updated = {int(snap_time.timestamp())},",
         f'  region = "{ah["region"]}", house = {int(ah["house_id"])},',
         "  items = {",

@@ -1,5 +1,6 @@
 -- Forever Net Worth: the window (/nw, or the addon button in the minimap's addon menu).
-local NW = ForeverNetWorth
+-- Built the first time it's opened, and only redrawn while it's visible.
+local _, ns = ...
 local W, H = 440, 600
 local PAD = 16
 local GOLD_R, GOLD_G, GOLD_B = 0.89, 0.69, 0.28
@@ -85,7 +86,7 @@ local function build()
     ui.rows[i] = r
     y = y - 16
   end
-  ui.warband = text(frame, "GameFontHighlightSmall", PAD, y, "LEFT", W - 2 * PAD)
+  ui.more = text(frame, "GameFontHighlightSmall", PAD, y, "LEFT", W - 2 * PAD)
   y = y - 24
 
   local th = text(frame, "GameFontNormal", PAD, y)
@@ -114,7 +115,8 @@ local function build()
   cbg:SetColorTexture(0.08, 0.09, 0.11, 0.8)
   ui.bars = {}
 
-  ui.foot = text(frame, "GameFontDisableSmall", PAD, -(H - 30), "LEFT", W - 2 * PAD)
+  text(frame, "GameFontDisableSmall", PAD, -(H - 30), "LEFT", W - 2 * PAD)
+    :SetText("Open your bank once on each character to include it. /nw help for commands.")
 end
 
 -- daily closing value for the last 30 days, from the saved history
@@ -151,25 +153,25 @@ local function drawChart(series)
     b:SetSize(math.max(1, bw - 2), h)
     if i == n then b:SetColorTexture(1, 0.85, 0.45, 1) else b:SetColorTexture(GOLD_R, GOLD_G, GOLD_B, v > 0 and 0.75 or 0) end
   end
-  ui.chartLabel:SetText("high " .. NW.Money(maxV, true))
+  ui.chartLabel:SetText("high " .. ns.Money(maxV, true))
 end
 
-function NW.Refresh()
-  if not frame or not frame:IsShown() or not NW.db then return end
-  local t = NW.Totals()
-  local db = NW.db
-  ui.total:SetText(NW.Money(t.total, true))
-  local prices = ForeverNetWorthPrices
+local function redraw()
+  if not frame:IsShown() then return end
+  local t = ns.Totals()
+  local db = ns.db
+  ui.total:SetText(ns.Money(t.total, true))
+  local prices = ns.prices
   local age = prices and prices.updated and ago(prices.updated) or "missing"
   local warn = (not prices or not prices.updated or time() - prices.updated > 86400 * 2) and " |cffff7f50(run the sync script)|r" or ""
   ui.sub:SetText(("Gold %s · items %s · %s after the 5%% AH cut\nAuction house prices: %s%s")
-    :format(NW.Money(t.gold, true), NW.Money(t.items, true), NW.Money(t.gold + t.items * (1 - NW.AH_CUT), true), age, warn))
+    :format(ns.Money(t.gold, true), ns.Money(t.items, true), ns.Money(t.gold + t.items * (1 - ns.AH_CUT), true), age, warn))
 
   for i, g in ipairs(db.goals) do
     local label, bar = ui["goal" .. i], ui["bar" .. i]
     if label then
-      local frac = math.min(1, t.total / (g * NW.GOLD))
-      label:SetText(("Goal %s: %d%%"):format(NW.Money(g * NW.GOLD, true), math.floor(frac * 100)))
+      local frac = math.min(1, t.total / (g * ns.GOLD))
+      label:SetText(("Goal %s: %d%%"):format(ns.Money(g * ns.GOLD, true), math.floor(frac * 100)))
       bar:SetValue(frac)
     end
   end
@@ -178,41 +180,42 @@ function NW.Refresh()
     local c = t.chars[i]
     if c then
       local cr, cg, cb = classColor(c.c.class)
-      local bankNote = c.c.bankSeen and NW.Money(c.bank, true) or "|cff888888open bank|r"
+      local bankNote = c.c.bankSeen and ns.Money(c.bank, true) or "|cff888888open bank|r"
       r.name:SetText((c.c.name or c.key) .. (c.c.level and (" |cff888888" .. c.c.level .. "|r") or ""))
       r.name:SetTextColor(cr, cg, cb)
-      r.gold:SetText(NW.Money(c.gold, true))
-      r.bags:SetText(NW.Money(c.bags, true))
+      r.gold:SetText(ns.Money(c.gold, true))
+      r.bags:SetText(ns.Money(c.bags, true))
       r.bank:SetText(bankNote)
-      r.total:SetText(NW.Money(c.total, true))
+      r.total:SetText(ns.Money(c.total, true))
     else
       r.name:SetText(""); r.gold:SetText(""); r.bags:SetText(""); r.bank:SetText(""); r.total:SetText("")
     end
   end
-  if t.warband then
-    ui.warband:SetText(("Warband bank: %s  |cff888888(seen %s)|r"):format(NW.Money(t.warband, true), ago(db.warband.seen)))
-  elseif #t.chars > #ui.rows then
-    ui.warband:SetText(("+ %d more characters"):format(#t.chars - #ui.rows))
-  else
-    ui.warband:SetText("")
-  end
+  ui.more:SetText(#t.chars > #ui.rows and ("+ %d more characters"):format(#t.chars - #ui.rows) or "")
 
   for i, r in ipairs(ui.top) do
     local h = t.top[i]
     if h then
       local src = h.ah and "" or " |cff888888(vendor)|r"
-      r.name:SetText(("%s x %s%s"):format(BreakUpLargeNumbers and BreakUpLargeNumbers(h.count) or h.count, NW.ItemName(h.id), src))
-      r.value:SetText(NW.Money(h.value, true))
+      r.name:SetText(("%s x %s%s"):format(BreakUpLargeNumbers and BreakUpLargeNumbers(h.count) or h.count, ns.ItemName(h.id), src))
+      r.value:SetText(ns.Money(h.value, true))
     else
       r.name:SetText(""); r.value:SetText("")
     end
   end
 
   drawChart(dailySeries(db.history))
-  ui.foot:SetText("Open your bank once on each character to include it. /nw help for commands.")
 end
 
-function NW.Toggle()
+-- many changes can arrive at once (looting, the bank): redraw at most twice a second
+local queued = false
+function ns.Refresh()
+  if queued or not frame or not frame:IsShown() then return end
+  queued = true
+  C_Timer.After(0.5, function() queued = false; redraw() end)
+end
+
+function ns.Toggle()
   if not frame then build() end
-  if frame:IsShown() then frame:Hide() else frame:Show(); NW.Refresh() end
+  if frame:IsShown() then frame:Hide() else frame:Show(); redraw() end
 end
