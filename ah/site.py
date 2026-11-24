@@ -3,6 +3,7 @@ import html
 import json
 from datetime import timedelta
 
+from . import trends
 from .stats import gold
 
 AH_CUT = 0.05
@@ -77,11 +78,147 @@ def _sparkline(points, w=120, h=28):
 
 # ---------- page -------------------------------------------------------------
 
+
+# ---------- trends tab -------------------------------------------------------
+
+def _steadiness(r2):
+    if r2 is None:
+        return "–"
+    return "very steady" if r2 >= 0.85 else "steady" if r2 >= 0.6 else "bumpy" if r2 >= 0.3 else "no clear direction"
+
+
+def _daily_spark(daily, w=110, h=26):
+    vals = [m for _, m, _ in daily]
+    if len(vals) < 2:
+        return '<span class="muted small">collecting…</span>'
+    lo, hi = min(vals), max(vals)
+    xy = " ".join(f"{i / (len(vals) - 1) * (w - 4) + 2:.1f},{h - 3 - (v - lo) / ((hi - lo) or 1) * (h - 6):.1f}"
+                  for i, v in enumerate(vals))
+    return (f'<svg class="spark" viewBox="0 0 {w} {h}" width="{w}" height="{h}" aria-hidden="true">'
+            f'<polyline points="{xy}" fill="none" stroke="var(--accent)" stroke-width="1.5"/></svg>')
+
+
+def _hour_chart(index, cheap, dear, w=720, h=190, L=44, B=26, T=12, R=8):
+    lo, hi = min(index) - 1.5, max(index) + 1.5
+    Y = lambda v: T + (1 - (v - lo) / ((hi - lo) or 1)) * (h - T - B)
+    bw = (w - L - R) / 24
+    cheap_h = {(cheap[0] + i) % 24 for i in range(3)}
+    dear_h = {(dear[0] + i) % 24 for i in range(3)}
+    bars = []
+    for hr, v in enumerate(index):
+        x = L + hr * bw
+        y0, y1 = sorted((Y(v), Y(100)))
+        colour = "var(--up)" if hr in cheap_h else "var(--down)" if hr in dear_h else "var(--accent)"
+        bars.append(f'<rect x="{x + 2:.1f}" y="{y0:.1f}" width="{bw - 4:.1f}" height="{max(y1 - y0, 1):.1f}" '
+                    f'fill="{colour}" opacity="0.85"><title>{hr:02d}:00 – {v:.0f}</title></rect>')
+        if hr % 3 == 0:
+            bars.append(f'<text x="{x + bw / 2:.1f}" y="{h - 8}" text-anchor="middle" class="axis">{hr:02d}</text>')
+    ticks = "".join(f'<text x="{L - 6}" y="{Y(v) + 4:.1f}" text-anchor="end" class="axis">{v:.0f}</text>'
+                    for v in (lo + 1.5, 100, hi - 1.5))
+    return (f'<svg class="chart" viewBox="0 0 {w} {h}" role="img" aria-label="Price level by hour of day">'
+            f'<line x1="{L}" x2="{w - R}" y1="{Y(100):.1f}" y2="{Y(100):.1f}" stroke="var(--muted)" stroke-dasharray="3 3"/>'
+            f'{"".join(bars)}{ticks}</svg>')
+
+
+def _trends_tab(cfg, hist, now, tr, items_by_id, featured):
+    s = trends.settings(cfg)
+    tzname = cfg.get("dashboard", {}).get("timezone", "Europe/Oslo")
+    out = [f"""<p class="small muted">Recalculated every run from the price history. An item is <b>trending</b> when a line fitted
+through its daily average prices moves at least {s['min_change']:.0f}% over 7 or 30 days <i>and</i> the move is steady
+(R² ≥ {s['min_steadiness']}), not one spike. Items whose price jumps around from hour to hour are left out as erratic.
+Thresholds are under <code>[trends]</code> in config.toml.</p>"""]
+
+    # 1. time of day
+    index, covered = trends.time_of_day(cfg, hist, now)
+    out.append("<h2>Best time to buy and sell</h2>")
+    if index is None or covered < 1:
+        out.append('<p class="muted">Needs at least a day of history.</p>')
+    else:
+        cheap, dear = trends.best_window(index)
+        out.append(f"""<p>Prices are lowest around <b class="up">{cheap[0]:02d}:00–{(cheap[0] + 3) % 24:02d}:00</b>
+({cheap[1] - 100:+.0f}% vs. the daily average) and highest around <b class="down">{dear[0]:02d}:00–{(dear[0] + 3) % 24:02d}:00</b>
+({dear[1] - 100:+.0f}%). Buy in the green hours; list your own goods before the red ones.</p>
+{_hour_chart(index, cheap, dear)}
+<p class="small muted">Median price level by hour ({tzname.split('/')[-1]} time), 100 = each item's average, last {min(covered, 14):.0f} days, erratic items excluded.</p>""")
+
+    # 2. movers
+    def mover_rows(direction):
+        rows = [(k, v) for k, v in tr.items() if v["label"] and v["label"][0] == direction]
+        rows.sort(key=lambda kv: -abs(kv[1]["label"][1]))
+        if not rows:
+            return f'<p class="muted">Nothing is trending {direction} right now.</p>'
+        body = []
+        for iid, v in rows:
+            it = items_by_id[iid]
+            _, chg, span, r2 = v["label"]
+            sup = v["supply_week"]
+            body.append(f"""<tr><td><a href="https://www.wowhead.com/forever/item={iid}" target="_blank" rel="noopener">{html.escape(it['name'])}</a>
+<div class="small muted">{html.escape(it.get('category', ''))}</div></td>
+<td class="num"><b class="{'up' if chg > 0 else 'down'}">{chg:+.0f}%</b><div class="small muted">{span}</div></td>
+<td>{_steadiness(r2)}</td>
+<td class="num">{f"{sup:+.0f}%" if sup is not None else "–"}</td>
+<td class="num">{gold(hist[iid][-1][2])}</td>
+<td class="spark-cell">{_daily_spark(v['daily'])}</td></tr>""")
+        return ("""<table class="trend"><thead><tr><th>Item</th><th class="num">Change</th><th>How steady</th>
+<th class="num">Supply, 7 d</th><th class="num">Price now</th><th>Last 30 days</th></tr></thead><tbody>"""
+                + "".join(body) + "</tbody></table>")
+
+    out.append('<h2>Trending up <span class="muted small">(getting more expensive)</span></h2>' + mover_rows("up"))
+    out.append('<h2>Trending down <span class="muted small">(getting cheaper)</span></h2>' + mover_rows("down"))
+
+    # 3. featured category at a glance
+    if featured:
+        fr = []
+        for it in (i for i in cfg["items"] if i.get("category") == featured and i["id"] in tr):
+            v = tr[it["id"]]
+            if v["erratic"]:
+                state = '<span class="muted">erratic, too jumpy to call</span>'
+            elif v["label"]:
+                state = f'<b class="{"up" if v["label"][0] == "up" else "down"}">trending {v["label"][0]}</b>'
+            elif v["week"] is None:
+                state = '<span class="muted">collecting data</span>'
+            else:
+                state = '<span class="muted">no clear trend</span>'
+            wk = f'{v["week"]:+.0f}%' if v["week"] is not None else "–"
+            fr.append(f"""<tr><td>{html.escape(it['name'])}</td><td class="num">{wk}</td><td>{_steadiness(v['week_r2'])}</td>
+<td>{state}</td><td class="spark-cell">{_daily_spark(v['daily'])}</td></tr>""")
+        out.append(f"""<h2>{html.escape(featured)} at a glance</h2>
+<table class="trend"><thead><tr><th>Item</th><th class="num">7-day trend</th><th>How steady</th><th>Status</th><th>Last 30 days</th></tr></thead>
+<tbody>{"".join(fr)}</tbody></table>""")
+
+    # 4. categories
+    cats = {}
+    for it in cfg["items"]:
+        v = tr.get(it["id"])
+        if v and v["week"] is not None and not v["erratic"]:
+            c = cats.setdefault(it.get("category", "Other"), {"chg": [], "up": 0, "down": 0})
+            c["chg"].append(v["week"])
+            if v["label"]:
+                c[v["label"][0]] += 1
+    if cats:
+        import statistics as st
+        crow = "".join(
+            f"""<tr><td>{html.escape(c)}</td><td class="num">{_pct_html(st.median(d['chg']))}</td>
+<td class="num">{d['up'] or '–'}</td><td class="num">{d['down'] or '–'}</td><td class="num">{len(d['chg'])}</td></tr>"""
+            for c, d in sorted(cats.items(), key=lambda cd: -st.median(cd[1]["chg"])))
+        out.append(f"""<h2>By category</h2>
+<table class="trend"><thead><tr><th>Category</th><th class="num">Typical 7-day change</th><th class="num">Trending up</th>
+<th class="num">Trending down</th><th class="num">Items</th></tr></thead><tbody>{crow}</tbody></table>""")
+
+    erratic = [items_by_id[k]["name"] for k, v in tr.items() if v["erratic"]]
+    if erratic:
+        out.append(f'<p class="small muted" style="margin-top:24px">Left out as erratic (price jumps too much between snapshots, usually '
+                   f'because only a few cheap listings exist): {html.escape(", ".join(sorted(erratic)))}.</p>')
+    return "\n".join(out)
+
+
 def build(cfg, hist, latest_time, out_path):
     ah = cfg["auction_house"]
     names = {i["id"]: i["name"] for i in cfg["items"]}
     now = latest_time
     current, rows_html, never_seen, chart_data = {}, {}, [], {}
+    tr = trends.compute(cfg, hist, now)
+    items_by_id = {i["id"]: i for i in cfg["items"]}
 
     for item in cfg["items"]:
         iid, rows = item["id"], hist.get(item["id"], [])
@@ -107,6 +244,11 @@ def build(cfg, hist, latest_time, out_path):
         }
         name = html.escape(item["name"])
         status = "" if listed_now else ' <span class="tag">not listed now</span>'
+        lab = tr.get(iid, {}).get("label")
+        if lab:
+            arrow = "▲" if lab[0] == "up" else "▼"
+            status += (f' <span class="badge {lab[0]}" title="Trending {lab[0]}: {lab[1]:+.0f}% over {lab[2]}, '
+                       f'{_steadiness(lab[3])}">{arrow} {abs(lab[1]):.0f}%</span>')
         change_cells = "".join(f'<td class="num">{_pct_html(c, need)}</td>'
                                for c, need in zip(changes, ("1 day", "7 days", "1 month", "3 months", "6 months")))
         rows_html.setdefault(item.get("category", "Other"), []).append(f"""
@@ -176,6 +318,8 @@ def build(cfg, hist, latest_time, out_path):
                    "".join(f"<li>{html.escape(i['name'])} <span class='muted'>(id {i['id']})</span></li>"
                            for i in never_seen) + "</ul>")
 
+    trends_html = _trends_tab(cfg, hist, now, tr, items_by_id, featured)
+    n_trending = sum(1 for v in tr.values() if v["label"])
     page = f"""<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Forever AH · {html.escape(ah['region'].upper())} Horde</title>
@@ -197,6 +341,14 @@ tr.detail td {{ background:var(--hover); padding:12px 16px; }}
 a {{ color:inherit; text-decoration-color:var(--line); }} a:hover {{ text-decoration-color:var(--accent); }}
 .muted {{ color:var(--muted); }} .small {{ font-size:12px; }}
 .up {{ color:var(--up); }} .down {{ color:var(--down); }}
+.tabs {{ display:flex; gap:4px; margin:22px 0 6px; border-bottom:1px solid var(--line); }}
+.tabs a {{ padding:8px 14px; text-decoration:none; color:var(--muted); border-bottom:2px solid transparent; margin-bottom:-1px; }}
+.tabs a.on {{ color:var(--fg); border-bottom-color:var(--accent); font-weight:600; }}
+.tabs .count {{ font-size:11px; background:var(--accent); color:var(--bg); border-radius:9px; padding:1px 6px; margin-left:4px; }}
+.badge {{ font-size:11px; font-weight:600; border-radius:4px; padding:0 5px; margin-left:6px; white-space:nowrap; }}
+.badge.up {{ color:var(--up); border:1px solid var(--up); }} .badge.down {{ color:var(--down); border:1px solid var(--down); }}
+code {{ font-size:12px; }}
+@media (max-width:640px) {{ .trend th:nth-child(3), .trend td:nth-child(3), .trend th:nth-child(4), .trend td:nth-child(4) {{ display:none; }} }}
 .tag {{ font-size:11px; color:var(--muted); border:1px solid var(--line); border-radius:4px; padding:0 5px; margin-left:6px; }}
 .chart {{ width:100%; height:auto; }} .grid {{ stroke:var(--line); }} .axis {{ fill:var(--muted); font-size:11px; }}
 .key {{ display:inline-block; width:18px; vertical-align:middle; border-top:2px solid var(--accent); }}
@@ -205,16 +357,22 @@ a {{ color:inherit; text-decoration-color:var(--line); }} a:hover {{ text-decora
 .ranges button {{ font:inherit; font-size:12px; padding:3px 10px; border:1px solid var(--line); border-radius:6px; background:transparent; color:var(--muted); cursor:pointer; }}
 .ranges button.on {{ color:var(--fg); border-color:var(--accent); }}
 .items th:nth-child(n+5):nth-child(-n+9) {{ width:52px; }}
-@media (max-width:900px) {{ .items th:nth-child(4), .items td:nth-child(4), .spark-cell, .items th:last-child {{ display:none; }} }}
+@media (max-width:900px) {{ .items th:nth-child(4), .items td:nth-child(4), .spark-cell, .items th:last-child, .trend th:last-child {{ display:none; }} }}
 @media (max-width:640px) {{ .craft th:nth-child(5), .craft td:nth-child(5) {{ display:none; }} }}
 @media (max-width:640px) {{ .items th:nth-child(3), .items td:nth-child(3), .items th:nth-child(8), .items td:nth-child(8), .items th:nth-child(9), .items td:nth-child(9) {{ display:none; }} }}
 </style></head><body><main>
 <h1>Forever auction house</h1>
 <p class="sub">{html.escape(ah['region'].upper())} · ruleset {ah['ruleset']} · Horde (house {ah['house_id']}) · snapshot <time data-utc="{now.isoformat()}">{now.strftime('%d %b %Y %H:%M')} UTC</time></p>
-<p class="small muted">Market value = average price of the cheapest 15% of units listed. 24 h compares with the snapshot a day ago; 7 d to 6 m compare with that day's average price. "–" means not enough history yet. Click any row for its chart.</p>
+<nav class="tabs" role="tablist"><a href="#prices" role="tab" data-tab="prices">Prices</a><a href="#trends" role="tab" data-tab="trends">Trends{f' <span class="count">{n_trending}</span>' if n_trending else ''}</a></nav>
+<section id="tab-prices">
+<p class="small muted">Market value = average price of the cheapest 15% of units listed. ▲/▼ = trending (see the Trends tab). 24 h compares with the snapshot a day ago; 7 d to 6 m compare with that day's average price. "–" means not enough history yet. Click any row for its chart.</p>
 {sections}
 {flagged}
-<p class="small muted" style="margin-top:40px">Data: Blizzard Battle.net API (undocumented WoW: Forever endpoints), updated hourly by GitHub Actions. Item names link to Wowhead's WoW: Forever database.</p>
+</section>
+<section id="tab-trends" hidden>
+{trends_html}
+</section>
+<p class="small muted" style="margin-top:40px">Data: Blizzard Battle.net API (undocumented WoW: Forever endpoints), checked every 20 minutes by GitHub Actions. Item names link to Wowhead's WoW: Forever database.</p>
 </main>
 <script>
 const HIST = {json.dumps(chart_data, separators=(",", ":"))};
@@ -251,6 +409,13 @@ document.querySelectorAll('tr.item').forEach(r => {{
   r.addEventListener('click', toggle);
   r.addEventListener('keydown', e => {{ if (e.key === 'Enter' || e.key === ' ') {{ e.preventDefault(); toggle(e); }} }});
 }});
+function showTab() {{
+  const name = location.hash === '#trends' ? 'trends' : 'prices';
+  document.getElementById('tab-prices').hidden = name !== 'prices';
+  document.getElementById('tab-trends').hidden = name !== 'trends';
+  document.querySelectorAll('.tabs a').forEach(a => a.classList.toggle('on', a.dataset.tab === name));
+}}
+window.addEventListener('hashchange', showTab); showTab();
 document.querySelectorAll('time[data-utc]').forEach(t => {{
   t.textContent = new Date(t.dataset.utc).toLocaleString([], {{ day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }});
 }});

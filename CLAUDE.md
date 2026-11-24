@@ -19,6 +19,8 @@ A WoW: Forever auction house price tracker for one Horde auction house: EU, rule
 - `ah/stats.py`: listings to min / market (mean of the cheapest 15% of units) / qty, plus gold formatting.
 - `ah/history.py`: CSV history, plus `state.json` for skipping duplicate snapshots by Last-Modified.
 - `ah/site.py`: dashboard table with price changes over 24 h / 7 d / 1 m / 3 m / 6 m (vs that day's average) and a 7-day sparkline. Each item has a chart drawn in the browser from embedded data, with ranges 7 days / 1 / 3 / 6 months / Max (4-hour points up to a month, daily beyond). The `[dashboard] featured` category ("Fishing") is shown first. The crafting-profit section sits right after the featured section and is hidden when config has no `[[recipe]]`. Recipes take an optional `note`. The user removed the bolt and smelting recipes on 2026-11-18 and added Mithril Spurs and Mithril Shield Spike on 2026-11-24. The user buys ore and smelts the bars (1 ore per bar). One row per item makes the grinding stones from bought Solid Stone (4 each); the other buys Solid Grinding Stones ready-made, for comparison.
+- `ah/trends.py`: trend engine. Daily averages in rolling 24 h windows, a log-linear fit over 7 and 30 days (change %, R² as steadiness), a noise filter that marks erratic items, supply trend, and a time-of-day price pattern in local time. Thresholds are under `[trends]` in config.toml; the timezone is `[dashboard] timezone`.
+- The dashboard has two tabs, Prices and Trends (`#trends`). The Trends tab shows the best time to buy and sell, rising and falling items, the featured category at a glance, and category medians. Trending items get ▲/▼ badges in the price tables.
 - `ah/__main__.py`: CLI commands `fetch`, `houses` and `report`. `report` loads 400 days of history.
 
 ## User's interests
@@ -30,7 +32,7 @@ A WoW: Forever auction house price tracker for one Horde auction house: EU, rule
 - Never commit secrets.
 
 ## Ideas not built yet
-- Deal alerts: market well below its 7-day average, e.g. a GitHub issue or a push notification.
+- Deal alerts: market well below its 7-day average, e.g. a GitHub issue or a push notification (trend data from `ah/trends.py` could drive this).
 - Item names from the API where available.
 - Compare factions (Alliance and Blackwater houses).
 - Daily roll-up of old hourly rows if `data/` gets large: about 90 KB/day at 92 items, so roughly 33 MB a year.

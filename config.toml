@@ -10,6 +10,12 @@ locale   = "en_GB"
 
 [dashboard]
 featured = "Fishing"   # this category is shown first, at the top of the page
+timezone = "Europe/Oslo"   # for the "best time to buy" chart
+
+[trends]
+min_change = 10        # % move over 7 or 30 days to count as trending
+min_steadiness = 0.6   # 0-1 (R²): how consistently it moved; lower = more items flagged, more false alarms
+max_noise = 0.10       # items jumping more than this between snapshots are "erratic" and never flagged
 
 [materials]
 # ---------------------------------------------------------------------------
