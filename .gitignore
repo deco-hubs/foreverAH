@@ -1,3 +1,5 @@
 __pycache__/
 *.pyc
 .env
+tools/sync_forever_addon.json
+tools/sync_forever_addon.log

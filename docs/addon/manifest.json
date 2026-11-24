@@ -1,0 +1,11 @@
+{
+ "addon": "ForeverNetWorth",
+ "files": [
+  "ForeverNetWorth.toc",
+  "Core.lua",
+  "UI.lua",
+  "Prices.lua"
+ ],
+ "prices_updated": "2026-11-24T10:22:00+00:00",
+ "items": 97
+}

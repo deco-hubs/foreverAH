@@ -9,7 +9,7 @@ import sys
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 
-from . import config, history, site, stats
+from . import addon, config, history, site, stats
 from .blizzard import Client
 
 SAMPLE_ITEMS = {2589: "Linen Cloth", 2770: "Copper Ore", 2447: "Peacebloom"}
@@ -30,6 +30,10 @@ def fetch(cfg):
     tracked = {i["id"] for i in cfg["items"]}
     summaries = {iid: stats.summarize(lst) for iid, lst in listings.items() if iid in tracked}
     path = history.append(snap_time.isoformat().replace("+00:00", "Z"), summaries)
+    n_prices = addon.write_prices(listings, snap_time, cfg, config.DOCS,
+                                  commodity_ids={c["item"]["id"] for c in commodities})
+    if n_prices:
+        print(f"Addon price file: {n_prices} items")
     history.save_state({"last_modified": last_modified, "time_utc": snap_time.isoformat(),
                         "listings": len(auctions) + len(commodities), "tracked_found": len(summaries)})
     print(f"Snapshot {snap_time:%Y-%m-%d %H:%M} UTC: {len(auctions)} auctions + {len(commodities)} commodity "
