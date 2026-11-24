@@ -36,6 +36,7 @@ A WoW: Forever auction house price tracker for one Horde auction house: EU, rule
 - The user holds 1 000 Stonescale Eel bought at about 1s each (in config as an [[investment]] with bought_qty/bought_at). Level 49 warrior, Blacksmithing 237, saving for the level 60 riding (1 000g) + epic mount (200g); plans to level BS 240–300 later with mined or cheaper Thorium.
 
 ## Conventions
+- Model use (user's standing request, 2026-11-24): plan on the main model and hand self-contained, easy-to-check jobs to helper agents on a cheaper model without asking: Sonnet for research sweeps, bulk config edits, ID checks; Haiku for simple lookups. Keep the addon Lua, tracker code changes and investment analysis on the main model. Skip delegation for small steps (a helper re-reads context cold). Review helper output before pushing, and say in one line when a job was delegated.
 - Read-only: never call anything that posts or buys.
 - Keep stdlib only, and keep everything in `config.toml` editable on GitHub's web editor.
 - Never commit secrets.
