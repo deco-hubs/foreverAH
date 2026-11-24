@@ -4,7 +4,7 @@ import json
 from datetime import timedelta
 
 from . import trends
-from .stats import coins, gold
+from .stats import LEET, coins, gold
 from .theme import BANNER, heading
 
 AH_CUT = 0.05
@@ -319,7 +319,23 @@ def build(cfg, hist, latest_time, out_path):
                    "".join(f"<li>{html.escape(i['name'])} <span class='muted'>(id {i['id']})</span></li>"
                            for i in never_seen) + "</ul>")
 
+    # 13s 37c easter egg: current sightings (toast) and all-time sightings (Hall of L33t)
+    leet_now, leet_ever = [], []
+    for it in cfg["items"]:
+        for t, mn, mk, _ in hist.get(it["id"], []):
+            if LEET in (mn, mk):
+                leet_ever.append((t, it["name"], "market value" if mk == LEET else "cheapest listing"))
+                if t == now:
+                    leet_now.append(it["name"])
+    leet_toast = "" if not leet_now else f"""<div class="leet-toast" role="status"><span class="sparks" aria-hidden="true">✦ ✧ ✦</span>
+<b>L33T PRICE SPOTTED</b> {html.escape(", ".join(leet_now))} is at exactly {coins(LEET)} right now <span class="sparks" aria-hidden="true">✦ ✧ ✦</span></div>"""
     trends_html = _trends_tab(cfg, hist, now, tr, items_by_id, featured)
+    if leet_ever:
+        leet_ever.sort(reverse=True)
+        trends_html += (heading("Hall of L33t", "gem", extra=' <span class="muted small">every time a price hit exactly 13s 37c</span>')
+                        + '<table class="trend"><thead><tr><th>When (UTC)</th><th>Item</th><th>Which price</th></tr></thead><tbody>'
+                        + "".join(f"<tr><td>{t:%d %b %Y %H:%M}</td><td>{html.escape(n)}</td><td>{w}</td></tr>" for t, n, w in leet_ever[:50])
+                        + "</tbody></table>")
     n_trending = sum(1 for v in tr.values() if v["label"])
     page = f"""<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -346,6 +362,20 @@ tr:last-child > td {{ border-bottom:none; }}
 thead th {{ background:#1b222d; }}
 .money {{ white-space:nowrap; }}
 .coin {{ display:inline-block; width:.72em; height:.72em; border-radius:50%; margin:0 .28em 0 .12em; vertical-align:-.04em; box-shadow:inset 0 -1px 0 rgba(0,0,0,.35); }}
+.money.leet {{ padding:1px 6px; border-radius:6px; background:linear-gradient(90deg,#3b2a0c,#6a4b12,#3b2a0c); background-size:200% 100%;
+  box-shadow:0 0 10px #e2b04888; color:#fff3c4; }}
+.leet-toast {{ margin:18px 0 0; padding:12px 16px; border:1px solid var(--accent); border-radius:12px; background:#231d10;
+  font-family:var(--serif); font-size:17px; text-align:center; box-shadow:0 0 24px #e2b04855; }}
+.leet-toast b {{ color:#ffe08a; letter-spacing:.08em; margin-right:6px; }}
+.sparks {{ color:var(--accent); display:inline-block; margin:0 8px; }}
+@media (prefers-reduced-motion: no-preference) {{
+  .money.leet {{ animation:shimmer 2.2s linear infinite; }}
+  .leet-toast {{ animation:pop .6s cubic-bezier(.2,1.6,.4,1) both; }}
+  .sparks {{ animation:twinkle 1.4s ease-in-out infinite; }}
+}}
+@keyframes shimmer {{ to {{ background-position:-200% 0; }} }}
+@keyframes pop {{ from {{ transform:scale(.6); opacity:0; }} to {{ transform:scale(1); opacity:1; }} }}
+@keyframes twinkle {{ 50% {{ opacity:.25; transform:scale(.8) rotate(20deg); }} }}
 .coin.gold {{ background:radial-gradient(circle at 35% 30%, #fff3b8, #e2b048 55%, #9c6d16); }}
 .coin.silver {{ background:radial-gradient(circle at 35% 30%, #ffffff, #c2c8d2 55%, #7d8592); }}
 .coin.copper {{ background:radial-gradient(circle at 35% 30%, #ffd1a8, #c27a45 55%, #7c4422); }}
@@ -381,6 +411,7 @@ code {{ font-size:12px; }}
 </style></head><body><main>
 <header class="hero">{BANNER}<div class="hero-text"><h1>Forever Auction House</h1>
 <p class="sub">{html.escape(ah['region'].upper())} · ruleset {ah['ruleset']} · Horde (house {ah['house_id']}) · snapshot <time data-utc="{now.isoformat()}">{now.strftime('%d %b %Y %H:%M')} UTC</time></p></div></header>
+{leet_toast}
 <nav class="tabs" role="tablist"><a href="#prices" role="tab" data-tab="prices">Prices</a><a href="#trends" role="tab" data-tab="trends">Trends{f' <span class="count">{n_trending}</span>' if n_trending else ''}</a></nav>
 <section id="tab-prices">
 <p class="small muted">Market value = average price of the cheapest 15% of units listed. ▲/▼ = trending (see the Trends tab). 24 h compares with the snapshot a day ago; 7 d to 6 m compare with that day's average price. "–" means not enough history yet. Click any row for its chart.</p>

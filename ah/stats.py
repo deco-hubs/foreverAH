@@ -11,6 +11,7 @@ import math
 from collections import defaultdict
 
 MARKET_SHARE = 0.15
+LEET = 1337   # 13s 37c. You know why.
 
 
 def unit_listings(auctions, commodities):
@@ -73,4 +74,6 @@ def coins(copper):
         parts = [part(s, "silver")] + ([part(k, "copper")] if k else [])
     else:
         parts = [part(k, "copper")]
+    if c == LEET:
+        return f'<span class="money leet" title="1337">{sign}{" ".join(parts)}</span>'
     return f'<span class="money">{sign}{" ".join(parts)}</span>'

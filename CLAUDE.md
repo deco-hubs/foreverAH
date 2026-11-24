@@ -24,6 +24,9 @@ A WoW: Forever auction house price tracker for one Horde auction house: EU, rule
 - `ah/theme.py`: original artwork as inline SVG: the night-market header banner and line icons per section. The look is a single dark "night market" theme with gold accents and serif headings, and prices are shown with gold/silver/copper coin icons (`stats.coins`). Don't use Blizzard's art (sprites, icons, logos, race designs); keep the graphics original.
 - `ah/__main__.py`: CLI commands `fetch`, `houses` and `report`. `report` loads 400 days of history.
 
+## Easter egg
+- A price of exactly 1337 copper (13s 37c) is special: the coin display shimmers (`stats.LEET`, class `money leet`), a "L33T PRICE SPOTTED" banner shows when the latest snapshot has one, and the Trends tab lists every sighting in a "Hall of L33t". The user asked for this; keep it.
+
 ## User's interests
 - Fishing reagents (Stonescale Eel, Firefin Snapper and the like) matter most. The user doesn't care about bolts or smelting.
 
