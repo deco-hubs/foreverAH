@@ -197,7 +197,7 @@ local function redraw()
   for i, r in ipairs(ui.top) do
     local h = t.top[i]
     if h then
-      local src = h.ah and "" or " |cff888888(vendor)|r"
+      local src = h.src == "ah" and "" or (" |cff888888(" .. (h.src == "auctionator" and "Auctionator" or "vendor") .. ")|r")
       r.name:SetText(("%s x %s%s"):format(BreakUpLargeNumbers and BreakUpLargeNumbers(h.count) or h.count, ns.ItemName(h.id), src))
       r.value:SetText(ns.Money(h.value, true))
     else

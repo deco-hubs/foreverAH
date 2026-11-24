@@ -78,25 +78,42 @@ function ns.Price(id)
   return ns.prices and ns.prices.items[id]
 end
 
--- price per unit, and whether it came from the auction house
+-- Auctionator (optional): its last scanned price, used for items the tracker's price file doesn't cover
+-- (mostly gear). Its price is the cheapest listing at your last scan, so it's a rougher guide.
+local function auctionatorPrice(id)
+  local api = Auctionator and Auctionator.API and Auctionator.API.v1
+  if not (api and api.GetAuctionPriceByItemID) then return nil end
+  local ok, price = pcall(api.GetAuctionPriceByItemID, "ForeverNetWorth", id)
+  if ok and type(price) == "number" and price > 0 then return price end
+end
+
+-- price per unit and where it came from: "ah" (tracker), "auctionator" or "vendor"
+-- soulbound items can't be sold on the auction house, so they always count at vendor price
 function ns.UnitValue(id, bound)
-  local p = not bound and ns.Price(id)
-  if p then return p, true end
+  if not bound then
+    local p = ns.Price(id)
+    if p then return p, "ah" end
+    p = auctionatorPrice(id)
+    if p then return p, "auctionator" end
+  end
   local sell = select(11, GetItemInfo(id))
   if sell == nil then
     C_Item.RequestLoadItemDataByID(id)    -- not cached yet: GET_ITEM_INFO_RECEIVED recalculates
     ns.waitingForInfo = true
   end
-  return sell or 0, false
+  return sell or 0, "vendor"
 end
+
+local RANK = { ah = 3, auctionator = 2, vendor = 1 }
 
 local function valueItems(items, holdings)
   local total = 0
   for id, rec in pairs(items or {}) do
-    local v, fromAH = 0, false
+    local v, src = 0, "vendor"
     if rec[1] > 0 then
-      local p, ah = ns.UnitValue(id, false)
-      v, fromAH = rec[1] * p, ah
+      local p
+      p, src = ns.UnitValue(id, false)
+      v = rec[1] * p
     end
     if rec[2] > 0 then v = v + rec[2] * (ns.UnitValue(id, true)) end
     total = total + v
@@ -105,7 +122,7 @@ local function valueItems(items, holdings)
       if not h then h = { id = id, count = 0, value = 0 }; holdings[id] = h end
       h.count = h.count + rec[1] + rec[2]
       h.value = h.value + v
-      h.ah = h.ah or fromAH
+      if not h.src or RANK[src] > RANK[h.src] then h.src = src end
     end
   end
   return total
