@@ -150,7 +150,8 @@ def build(cfg, hist, latest_time, out_path):
             continue
         margin = profit / cost * 100 if cost else None
         verdict = "Craft and sell" if profit > 0 else "Sell the materials"
-        craft_rows.append(f"""<tr><td>{html.escape(r["name"])}<div class="small muted">{verdict}</div></td>
+        note = f'<div class="small muted">{html.escape(r["note"])}</div>' if r.get("note") else ""
+        craft_rows.append(f"""<tr><td>{html.escape(r["name"])}<div class="small"><b class="{'up' if profit > 0 else 'down'}">{verdict}</b></div>{note}</td>
   <td class="num">{gold(cost)}</td><td class="num">{gold(revenue)}</td>
   <td class="num"><b class="{'up' if profit > 0 else 'down'}">{gold(profit)}</b></td>
   <td class="num">{_pct_html(margin)}</td></tr>""")
@@ -159,13 +160,14 @@ def build(cfg, hist, latest_time, out_path):
     order = ([featured] if featured in rows_html else []) + [c for c in rows_html if c != featured]
     craft_html = "" if not craft_rows else f"""<h2>Crafting profit</h2>
 <p class="small muted">Sale value is after the 5% auction house cut. Recipes and reagents are set in config.toml.</p>
-<table><thead><tr><th>Recipe</th><th class="num">Materials cost</th><th class="num">Sells for</th><th class="num">Profit per craft</th><th class="num">Margin</th></tr></thead>
+<table class="craft"><thead><tr><th>Recipe</th><th class="num">Materials cost</th><th class="num">Sells for</th><th class="num">Profit per craft</th><th class="num">Margin</th></tr></thead>
 <tbody>{"".join(craft_rows)}</tbody></table>"""
-    sections = "".join(
-        f"""<h2>{html.escape(cat)}</h2>
-<table><thead><tr><th>Item</th><th class="num">Market value</th><th class="num">Listed</th><th class="num">7-day avg</th>
+    section = lambda cat: f"""<h2>{html.escape(cat)}</h2>
+<table class="items"><thead><tr><th>Item</th><th class="num">Market value</th><th class="num">Listed</th><th class="num">7-day avg</th>
 <th class="num">24 h</th><th class="num">7 d</th><th class="num">1 m</th><th class="num">3 m</th><th class="num">6 m</th><th>Last 7 days</th></tr></thead>
-<tbody>{"".join(rows_html[cat])}</tbody></table>""" for cat in order)
+<tbody>{"".join(rows_html[cat])}</tbody></table>"""
+    lead = section(order[0]) if order and order[0] == featured else ""
+    sections = lead + craft_html + "".join(section(c) for c in order if not (lead and c == featured))
 
     flagged = ""
     if never_seen:
@@ -202,14 +204,14 @@ a {{ color:inherit; text-decoration-color:var(--line); }} a:hover {{ text-decora
 .ranges {{ display:flex; gap:6px; margin-bottom:8px; }}
 .ranges button {{ font:inherit; font-size:12px; padding:3px 10px; border:1px solid var(--line); border-radius:6px; background:transparent; color:var(--muted); cursor:pointer; }}
 .ranges button.on {{ color:var(--fg); border-color:var(--accent); }}
-th:nth-child(n+5):nth-child(-n+9) {{ width:52px; }}
-@media (max-width:900px) {{ th:nth-child(4), td:nth-child(4), .spark-cell, th:last-child {{ display:none; }} }}
-@media (max-width:640px) {{ th:nth-child(3), td:nth-child(3), th:nth-child(8), td:nth-child(8), th:nth-child(9), td:nth-child(9) {{ display:none; }} }}
+.items th:nth-child(n+5):nth-child(-n+9) {{ width:52px; }}
+@media (max-width:900px) {{ .items th:nth-child(4), .items td:nth-child(4), .spark-cell, .items th:last-child {{ display:none; }} }}
+@media (max-width:640px) {{ .craft th:nth-child(5), .craft td:nth-child(5) {{ display:none; }} }}
+@media (max-width:640px) {{ .items th:nth-child(3), .items td:nth-child(3), .items th:nth-child(8), .items td:nth-child(8), .items th:nth-child(9), .items td:nth-child(9) {{ display:none; }} }}
 </style></head><body><main>
 <h1>Forever auction house</h1>
 <p class="sub">{html.escape(ah['region'].upper())} · ruleset {ah['ruleset']} · Horde (house {ah['house_id']}) · snapshot <time data-utc="{now.isoformat()}">{now.strftime('%d %b %Y %H:%M')} UTC</time></p>
 <p class="small muted">Market value = average price of the cheapest 15% of units listed. 24 h compares with the snapshot a day ago; 7 d to 6 m compare with that day's average price. "–" means not enough history yet. Click any row for its chart.</p>
-{craft_html}
 {sections}
 {flagged}
 <p class="small muted" style="margin-top:40px">Data: Blizzard Battle.net API (undocumented WoW: Forever endpoints), updated hourly by GitHub Actions. Item names link to Wowhead's WoW: Forever database.</p>

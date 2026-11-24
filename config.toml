@@ -123,6 +123,11 @@ items = [
   { id = 6371,  name = "Fire Oil",                    category = "Fishing" },
   { id = 6370,  name = "Blackmouth Oil",              category = "Fishing" },
 
+  # Blacksmithing
+  { id = 7969,  name = "Mithril Spurs",               category = "Blacksmithing" },
+  { id = 7912,  name = "Solid Stone",                 category = "Blacksmithing" },
+  { id = 7966,  name = "Solid Grinding Stone",        category = "Blacksmithing" },
+
   # Pearls (from Big-Mouth Clams)
   { id = 13926, name = "Golden Pearl",                category = "Pearls" },
 
@@ -143,3 +148,17 @@ items = [
 # Every auction house item in a recipe must also be in the [materials] list.
 # Vendor items take vendor_price in copper. Profit = sale value after the 5% AH cut minus cost.
 # ---------------------------------------------------------------------------
+
+[[recipe]]
+name = "Mithril Spurs"
+note = "4 Mithril Bar + 3 Solid Grinding Stone, making the grinding stones yourself from bought Solid Stone (4 each = 12)"
+makes = 7969
+makes_qty = 1
+reagents = [ { id = 3860, qty = 4 }, { id = 7912, qty = 12 } ]
+
+[[recipe]]
+name = "Mithril Spurs (buying grinding stones)"
+note = "Comparison: 4 Mithril Bar + 3 Solid Grinding Stone bought on the auction house"
+makes = 7969
+makes_qty = 1
+reagents = [ { id = 3860, qty = 4 }, { id = 7966, qty = 3 } ]
