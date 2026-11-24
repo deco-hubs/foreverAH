@@ -69,6 +69,7 @@ ICONS = {
     "grid": _svg('<rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><rect x="13" y="13" width="7" height="7" rx="1"/>', "categories"),
     "eye": _svg('<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>', "watch"),
     "question": _svg('<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 5 .5c0 1.5-2.5 2-2.5 3.5"/><circle cx="12" cy="17" r="0.8" fill="currentColor"/>', "unknown"),
+    "chest": _svg('<path d="M4 10h16v9H4z"/><path d="M4 10c0-3 2-5 4-5h8c2 0 4 2 4 5"/><path d="M4 13h16"/><rect x="10.5" y="11.5" width="3" height="3.5" rx=".6"/>', "investments"),
     "gem": _svg('<path d="M6 4h12l3 5-9 11L3 9z"/><path d="M3 9h18M9 4l3 16M15 4l-3 16"/>', "item"),
 }
 

@@ -10,7 +10,7 @@ locale   = "en_GB"
 
 [dashboard]
 featured = "Fishing"   # summarised "at a glance" on the Trends tab
-tab_order = ["Crafting", "Ores and bars", "Fishing", "Pearls", "Herbs"]   # tabs not listed follow after, then Trends
+tab_order = ["Crafting", "Investments", "Ores and bars", "Fishing", "Pearls", "Herbs", "Raid prep"]   # tabs not listed follow after, then Trends
 timezone = "Europe/Oslo"   # for the "best time to buy" chart
 
 [trends]
@@ -139,6 +139,29 @@ items = [
   # Pearls (from Big-Mouth Clams)
   { id = 13926, name = "Golden Pearl",                category = "Pearls" },
 
+  # Raid prep: new Forever herbs, raid reagents and finished consumables (added 2026-11-24 for the Investments tab)
+  { id = 248822, name = "Death Lotus",                   category = "Raid prep" },
+  { id = 248821, name = "Demonsage",                     category = "Raid prep" },
+  { id = 248823, name = "Marefoil",                      category = "Raid prep" },
+  { id = 7068,   name = "Elemental Fire",                category = "Raid prep" },
+  { id = 4402,   name = "Small Flame Sac",               category = "Raid prep" },
+  { id = 7067,   name = "Elemental Earth",               category = "Raid prep" },
+  { id = 274273, name = "Flask of Natural Accuracy",     category = "Raid prep" },
+  { id = 274274, name = "Flask of Natural Aggression",   category = "Raid prep" },
+  { id = 274275, name = "Flask of Natural Precision",    category = "Raid prep" },
+  { id = 274276, name = "Flask of Natural Swiftness",    category = "Raid prep" },
+  { id = 13510,  name = "Flask of the Titans",           category = "Raid prep" },
+  { id = 13511,  name = "Flask of Distilled Wisdom",     category = "Raid prep" },
+  { id = 13512,  name = "Flask of Supreme Power",        category = "Raid prep" },
+  { id = 13513,  name = "Flask of Chromatic Resistance", category = "Raid prep" },
+  { id = 13457,  name = "Greater Fire Protection Potion", category = "Raid prep" },
+  { id = 13452,  name = "Elixir of the Mongoose",        category = "Raid prep" },
+  { id = 13454,  name = "Greater Arcane Elixir",         category = "Raid prep" },
+  { id = 13444,  name = "Major Mana Potion",             category = "Raid prep" },
+  { id = 13928,  name = "Grilled Squid",                 category = "Raid prep" },
+  { id = 13931,  name = "Nightfin Soup",                 category = "Raid prep" },
+  { id = 13934,  name = "Mightfish Steak",               category = "Raid prep" },
+
   # Your own items: add lines like this one (category can be anything you like)
   # { id = 12345, name = "Some item", category = "My list" },
 ]
@@ -191,3 +214,156 @@ note = "4 Solid Stone, bought on the auction house"
 makes = 7966
 makes_qty = 1
 reagents = [ { id = 7912, qty = 4 } ]
+
+
+# ---------------------------------------------------------------------------
+# Investments tab (written 2026-11-24). You write the reasons; the dashboard works out
+# the numbers and a signal on every run. Each id must also be in [materials].
+#   catalyst  = name of a [[catalyst]] below (the event you're waiting for)
+#   horizon   = "short" (weeks) or "long" (months)
+#   bought_qty / bought_at = fill in when you buy, e.g. bought_qty = 200, bought_at = "12s 50c"
+# ---------------------------------------------------------------------------
+
+[[catalyst]]
+date = 2026-12-09
+name = "Raids open"
+note = "Barrow Deeps (10), Hyjal Summit (20), Onyxia's Lair (40). Fixed date on Blizzard's roadmap."
+
+[[catalyst]]
+date = 2027-01-15
+name = "Hardcore servers (no date yet)"
+note = "Blizzard says winter. Placeholder date: move it when it's announced. Separate economy, so mostly a population shift."
+
+[[catalyst]]
+date = 2027-04-01
+name = "Spring update (no date yet)"
+note = "2 new raids (10 and 20), 2 dungeons, new zone, a legendary questline. Placeholder date."
+
+[[investment]]
+id = 13464   # Golden Sansam
+horizon = "short"
+catalyst = "Raids open"
+thesis = "9 per Flask of Natural Accuracy (the new +hit flask for Hyjal Summit and Barrow Deeps), and every raider who flasks needs one a week. Price has drifted down since launch while supply grows, the opposite of what raid demand should do from 9 December."
+later_use = "Natural flasks only work in Mount Hyjal and its two raids, so demand lasts as long as those raids are current. Also used in Major Rejuvenation Potions."
+risk = "Many level 60s are herbing now; supply could keep outpacing demand. Sell into the first raid weeks rather than hold for months."
+
+[[investment]]
+id = 13465   # Mountain Silversage
+horizon = "short"
+catalyst = "Raids open"
+thesis = "6 per Flask of Natural Aggression (+crit in Hyjal), and a reagent in the Classic flasks Supreme Power and Chromatic Resistance and in Greater Arcane Elixir. Cheap and flat today."
+later_use = "Classic-style flasks and caster elixirs stay in use for every raid tier, so it keeps a floor after the first rush."
+risk = "Supply is rising (about +16% units listed over the week)."
+
+[[investment]]
+id = 13463   # Dreamfoil
+horizon = "short"
+catalyst = "Raids open"
+thesis = "The busiest raid herb: 9 per Flask of Natural Precision, plus Greater Fire Protection Potions (Elemental Fire + Dreamfoil) for Onyxia, Major Mana Potions and Greater Arcane Elixirs. US guides already call it a buy before 9 December."
+later_use = "Used in Flask of Supreme Power and Distilled Wisdom, so demand continues after the Hyjal raids are on farm."
+risk = "The most-farmed high-level herb, so the spike may be short."
+
+[[investment]]
+id = 13467   # Icecap
+horizon = "short"
+catalyst = "Raids open"
+thesis = "6 per Flask of Natural Swiftness (+haste in Hyjal), plus Major Mana Potions and the Classic flasks Distilled Wisdom and Chromatic Resistance."
+later_use = "Classic pattern: frost-resistance gear and potions matter for later raids, if Forever brings a frost-themed raid back."
+risk = "Only grows in Winterspring, so supply is thinner and swings harder both ways."
+
+[[investment]]
+id = 248822  # Death Lotus
+horizon = "long"
+catalyst = "Raids open"
+thesis = "The bottleneck of all four Natural flasks (1 each), the Lotus Claw and Natural Power glove enchants, and the Legionite Glaive. The only known source is a small chance from Hyjal herbs with the Lotus Claw enchant, so it should behave like Black Lotus."
+later_use = "Every raider using a Natural flask needs one per raid night, so demand is weekly and recurring."
+risk = "Not seen on our auction house yet. Watch the first listings: early prices on rare new mats tend to start high and fall as more herbalists get the enchant."
+
+[[investment]]
+id = 248821  # Demonsage
+horizon = "short"
+catalyst = "Raids open"
+thesis = "12 per Flask of Natural Accuracy and 18 per Natural Aggression, the two most popular Hyjal flasks for damage dealers."
+later_use = "Only used in those flasks, so its value lives and dies with the Hyjal raids."
+risk = "Node locations weren't public at launch; once herbalists know where it grows, supply may jump."
+
+[[investment]]
+id = 248823  # Marefoil
+horizon = "short"
+catalyst = "Raids open"
+thesis = "12 per Flask of Natural Precision and 18 per Natural Swiftness, plus the Stealthman 52 engineering item."
+later_use = "Same as Demonsage: tied to the Hyjal raids."
+risk = "Same as Demonsage."
+
+[[investment]]
+id = 13468   # Black Lotus
+horizon = "long"
+catalyst = "Spring update (no date yet)"
+thesis = "One in every Classic-style flask (Titans, Supreme Power, Distilled Wisdom, Chromatic Resistance). Here it is about 8g; on Classic Anniversary realms it later reached about 250g each as raiding got harder and gold inflated."
+later_use = "Demand grows with every raid tier, because harder raids mean more flasking. The classic long-term hold."
+risk = "Forever adds herb seeds and a Greenhouse, which may make it less scarce than in Classic. Buy small amounts in the cheap hours."
+
+[[investment]]
+id = 7068    # Elemental Fire
+horizon = "short"
+catalyst = "Raids open"
+thesis = "With Dreamfoil it makes the Greater Fire Protection Potion, the standard answer to Onyxia's Deep Breath, and Blizzard told players to build fire resistance before Onyxia. Also used for the cloak fire-resistance enchant."
+later_use = "In Classic, one of the most farmed items all the way through the fire raids. Depends on whether Forever brings back Molten Core or Blackwing Lair."
+risk = "Onyxia alone is a smaller fire market than Molten Core was. Not tracked before today, so the range starts now."
+
+[[investment]]
+id = 13423   # Stonescale Oil
+horizon = "long"
+catalyst = "Raids open"
+thesis = "Fishing pick: the oil goes into Flask of the Titans, the tank flask. Right now Stonescale Oil sells for less than a raw Stonescale Eel, so buy the oil, not the eel."
+later_use = "Tanks flask for every raid, and the Elixir of Superior Defense uses it if that recipe comes to Forever."
+risk = "Thousands listed at any time, from everyone fishing; it needs real flask demand to move."
+
+[[investment]]
+id = 8846    # Gromsblood
+horizon = "short"
+catalyst = "Raids open"
+thesis = "The main herb in Flask of the Titans, and used in Elixir of the Mongoose (melee agility). Already up about 17% this week, so raid buyers may be early."
+later_use = "Mongoose is used by every melee class in every tier."
+risk = "Has already moved; may be pricey by the time you buy."
+
+[[investment]]
+id = 13893   # Large Raw Mightfish
+horizon = "short"
+catalyst = "Raids open"
+thesis = "Fishing pick: cooks into Mightfish Steak, a raid food. It has fallen about a third since we started tracking, while other raid fish (Winter Squid, Nightfin Snapper) have already doubled."
+later_use = "Raid food is eaten every raid night by everyone, in every tier."
+risk = "Food buffs are the easiest to swap for something cheaper, so demand is softer than for flasks."
+
+[[investment]]
+id = 13755   # Winter Squid
+horizon = "short"
+catalyst = "Raids open"
+thesis = "Fishing pick: Grilled Squid is a popular agility/crit raid food. Already up about 150% this week, so this is one to sell into rather than buy."
+later_use = "Steady raid food demand; Winter Squid is only caught in winter months in Classic, which can squeeze supply."
+risk = "Bought late = buying the top."
+
+[[investment]]
+id = 12360   # Arcanite Bar
+horizon = "long"
+catalyst = "Spring update (no date yet)"
+thesis = "Made by a daily alchemy transmute from Arcane Crystal + Thorium Bar, so supply can't jump quickly. Used in endgame blacksmithing, engineering and leatherworking items."
+later_use = "In Classic, Arcanite demand grew with every phase as new recipes (rep rewards, raid patterns) called for it."
+risk = "About 47g a bar ties up a lot of gold, and the US price has been flat. Hold only what you can afford to sit on."
+
+# Looked at and passed on, shown in a small table on the Investments tab.
+[[avoid]]
+id = 10620
+reason = "Thorium Ore is falling (about −18% this week) with supply up about 30%: lots of level 60 miners. No raid demand known."
+
+[[avoid]]
+id = 11371
+reason = "Dark Iron Bar is falling and listings more than doubled this week."
+
+[[avoid]]
+id = 2452
+reason = "Swiftthistle: huge supply and no known raid use (US guides say the same)."
+
+[[avoid]]
+id = 13926
+reason = "Golden Pearl: some new recipes use it, but no confirmed raid demand yet."

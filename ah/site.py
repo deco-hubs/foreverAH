@@ -3,7 +3,7 @@ import html
 import json
 from datetime import timedelta
 
-from . import trends
+from . import invest, trends
 from .stats import LEET, coins, gold
 from .theme import BANNER, ICONS, heading
 
@@ -212,6 +212,121 @@ Thresholds are under <code>[trends]</code> in config.toml.</p>"""]
     if erratic:
         out.append(f'<p class="small muted" style="margin-top:24px">Left out as erratic (price jumps too much between snapshots, usually '
                    f'because only a few cheap listings exist): {html.escape(", ".join(sorted(erratic)))}.</p>')
+    return "\n".join(out)
+
+
+# ---------- investments tab --------------------------------------------------
+
+_SIGNAL_ORDER = {"sell": 0, "buy": 1, "accumulate": 2, "pricey": 3, "hold": 4, "unlisted": 5}
+
+
+def _days_text(days):
+    if days is None:
+        return ""
+    if days >= 1:
+        return f"in {days:.0f} day{'s' if round(days) != 1 else ''}"
+    if days > -1:
+        return "today"
+    return f"{-days:.0f} day{'s' if round(-days) != 1 else ''} ago"
+
+
+def _range_bar(e):
+    if e["low"] is None:
+        return '<span class="muted small">no prices yet</span>'
+    marker = "" if e["position"] is None else f'<span class="rmark" style="left:{e["position"]:.0f}%"></span>'
+    pos = f'{e["position"]:.0f}%' if e["position"] is not None else "–"
+    return (f'<div class="rbar" title="Where today\'s price sits between the cheapest and dearest daily average since tracking began">'
+            f'{marker}</div><div class="rlab small muted"><span>{coins(e["low"])}</span><span>{pos}</span><span>{coins(e["high"])}</span></div>')
+
+
+def _invest_tab(cfg, hist, tr, now, items_by_id):
+    evals = invest.evaluate(cfg, hist, tr, now)
+    cats = invest.catalysts(cfg, now)
+    upcoming = [c for c in cats if c["days"] > -1]
+    out = [heading("Investments", "chest", extra=' <span class="muted small">buy now, sell when demand arrives</span>'),
+           f"""<p class="small muted">A watchlist of items that should be worth more later in WoW: Forever's lifecycle. The reasons and dates are
+written by hand in config.toml (<code>[[investment]]</code> and <code>[[catalyst]]</code>); the numbers and the signal are recalculated from the
+price history on every run. <b>Buy zone</b> = in the cheapest third of the range seen so far, or {abs(invest.BUY_VS_WEEK)}%+ under the 7-day average.
+<b>Pricey</b> = in the top fifth of the range, or {invest.PRICEY_VS_WEEK}%+ over the 7-day average. <b>Sell window</b> = within {invest.SELL_DAYS_AFTER} days
+after the catalyst, at least {invest.SELL_GAIN}% over the week before it. The range only covers the days tracked so far, so early signals are rough.</p>"""]
+
+    buy = sum(1 for e in evals if e["signal"] == "buy")
+    sell = sum(1 for e in evals if e["signal"] == "sell")
+    held = [e for e in evals if e["value"] is not None]
+    nxt = upcoming[0] if upcoming else None
+    tiles = [
+        _tile("Watching", f"{len(evals)}", f"{sum(1 for e in evals if e['now'] is not None)} listed right now"),
+        _tile("Buy zone", f'<span class="up">{buy}</span>', "cheap vs. their own history"),
+        _tile("Sell window", f'<span class="down">{sell}</span>' if sell else "0", "spiked after their catalyst"),
+        _tile("Next catalyst", html.escape(nxt["name"]) if nxt else "–", _days_text(nxt["days"]) if nxt else "add one in config.toml"),
+    ]
+    if held:
+        pnl = sum(e["pnl"] for e in held)
+        tiles.append(_tile("Your positions", coins(sum(e["value"] for e in held)),
+                           f'<span class="{"up" if pnl >= 0 else "down"}">{"+" if pnl >= 0 else "−"}{coins(abs(pnl))}</span> after the 5% cut'))
+    out.append(f'<div class="tiles">{"".join(tiles)}</div>')
+
+    if cats:
+        out.append(heading("Roadmap", "clock", extra=' <span class="muted small">dated events that move demand</span>'))
+        li = []
+        for c in cats:
+            note = f'<div class="small muted">{html.escape(c["note"])}</div>' if c["note"] else ""
+            li.append(f'<li class="{"past" if c["days"] <= -1 else ""}"><b>{c["date"]:%d %b %Y}</b> · {html.escape(c["name"])} '
+                      f'<span class="muted small">{_days_text(c["days"])}</span>{note}</li>')
+        out.append('<ol class="roadmap">' + "".join(li) + "</ol>")
+
+    out.append(heading("Watchlist", "eye"))
+    if not evals:
+        out.append('<p class="muted">No <code>[[investment]]</code> entries in config.toml yet.</p>')
+    cards = []
+    for e in sorted(evals, key=lambda e: _SIGNAL_ORDER[e["signal"]]):
+        inv = e["inv"]
+        cat = e["catalyst"]
+        horizon = inv.get("horizon", "")
+        tags = "".join(f'<span class="tag">{html.escape(t)}</span>' for t in
+                       ([{"short": "short hold", "long": "long hold"}.get(horizon, horizon)] if horizon else []) +
+                       ([f"waits for: {cat['name']} ({_days_text(cat['days'])})"] if cat else []))
+        if e["missing"]:
+            tags += ' <span class="tag">add this id to [materials] to get prices</span>'
+        pos_html = ""
+        if e["bought_qty"] and e["bought_at"]:
+            pnl = (f' · now worth {coins(e["value"])} after the cut, <b class="{"up" if e["pnl"] >= 0 else "down"}">'
+                   f'{e["pnl_pct"]:+.0f}%</b>') if e["value"] is not None else ""
+            pos_html = f'<p class="small">You hold <b>{e["bought_qty"]:,}</b> bought at {coins(e["bought_at"])} each{pnl}</p>'
+        stats = [
+            ("Price now", coins(e["now"]) if e["now"] is not None else '<span class="muted">not listed</span>'),
+            ("Listed", f'{e["qty_now"]:,}'.replace(",", " ") if e["qty_now"] is not None else "–"),
+            ("vs 7-day avg", _pct_html(e["vs_week"], "a day")),
+            ("7-day trend", _pct_html(e["trend"], "4 days")),
+            ("Supply, 7 d", _pct_html(e["supply"], "4 days")),
+        ]
+        cards.append(f"""<article class="inv {e['signal']}">
+<header><div><a href="https://www.wowhead.com/forever/item={e['id']}" target="_blank" rel="noopener"><b>{html.escape(e['name'])}</b></a>
+<div class="tags">{tags}</div></div><span class="pill {e['signal']}">{e['signal_text']}</span></header>
+<div class="istats">{"".join(f'<div><div class="small muted">{k}</div><div>{v}</div></div>' for k, v in stats)}
+<div class="irange"><div class="small muted">Range since tracking began</div>{_range_bar(e)}</div>
+<div class="ispark">{_daily_spark(e['daily']) if len(e['daily']) >= 2 else '<span class="muted small">chart after 2 days</span>'}</div></div>
+{f'<p><b>Why:</b> {html.escape(inv["thesis"])}</p>' if inv.get("thesis") else ""}
+{f'<p><b>Later in the lifecycle:</b> {html.escape(inv["later_use"])}</p>' if inv.get("later_use") else ""}
+{f'<p class="small muted"><b>Risk:</b> {html.escape(inv["risk"])}</p>' if inv.get("risk") else ""}
+{pos_html}</article>""")
+    out.append("".join(cards))
+
+    avoid = cfg.get("avoid", [])
+    if avoid:
+        out.append(heading("Not a bet right now", "down", extra=' <span class="muted small">looked at, passed on</span>'))
+        rows = []
+        for a in avoid:
+            it = items_by_id.get(a["id"])
+            name = it["name"] if it else a.get("name", f"item {a['id']}")
+            t = tr.get(a["id"], {})
+            rows.append(f'<tr><td>{html.escape(name)}</td><td class="num">{coins(hist[a["id"]][-1][2]) if hist.get(a["id"]) else "–"}</td>'
+                        f'<td class="num">{_pct_html(t.get("week"), "4 days")}</td><td>{html.escape(a.get("reason", ""))}</td></tr>')
+        out.append('<table class="trend avoid"><thead><tr><th>Item</th><th class="num">Price now</th><th class="num">7-day trend</th>'
+                   '<th>Why not</th></tr></thead><tbody>' + "".join(rows) + "</tbody></table>")
+    out.append('<p class="small muted" style="margin-top:20px">To add your own: copy an <code>[[investment]]</code> block in config.toml, '
+               'change the id (it must also be in <code>[materials]</code>), and write your reasons. Fill in <code>bought_qty</code> and '
+               '<code>bought_at = "12s 50c"</code> when you buy, and the card shows your profit or loss.</p>')
     return "\n".join(out)
 
 
@@ -433,6 +548,12 @@ def build(cfg, hist, latest_time, out_path):
     tabs = cat_tabs[:]
     if craft_rows:
         tabs.insert(min(craft_pos, len(tabs)), ("crafting", "Crafting", craft_tab))
+    if cfg.get("investment"):
+        inv_pos = wanted.index("Investments") if "Investments" in wanted else 1
+        # place it after whatever precedes it in tab_order (Crafting may be missing)
+        before = [t for t in wanted[:inv_pos]]
+        at = max([i + 1 for i, t in enumerate(tabs) if t[1] in before or t[0] in [_slug(b) for b in before]], default=0)
+        tabs.insert(at, ("investments", "Investments", _invest_tab(cfg, hist, tr, now, items_by_id)))
 
     flagged = ""
     if False and never_seen:
@@ -534,6 +655,26 @@ h3 {{ font-family:var(--serif); font-size:16px; margin:8px 0 0; color:#f1dfae; }
 .badge {{ font-size:11px; font-weight:600; border-radius:4px; padding:0 5px; margin-left:6px; white-space:nowrap; }}
 .badge.up {{ color:var(--up); border:1px solid var(--up); }} .badge.down {{ color:var(--down); border:1px solid var(--down); }}
 code {{ font-size:12px; }}
+.inv {{ background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--line); border-radius:12px; padding:12px 16px; margin:0 0 12px; }}
+.inv.buy {{ border-left-color:var(--up); }} .inv.sell {{ border-left-color:var(--accent); }} .inv.pricey {{ border-left-color:var(--down); }}
+.inv header {{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }}
+.inv p {{ margin:8px 0 0; font-size:14px; }}
+.inv .tags .tag {{ margin:4px 6px 0 0; display:inline-block; }}
+.pill {{ font-size:12px; font-weight:600; border-radius:999px; padding:2px 10px; white-space:nowrap; border:1px solid var(--line); color:var(--muted); }}
+.pill.buy {{ color:var(--bg); background:var(--up); border-color:var(--up); }}
+.pill.sell {{ color:var(--bg); background:var(--accent); border-color:var(--accent); }}
+.pill.pricey {{ color:var(--down); border-color:var(--down); }}
+.pill.accumulate {{ color:var(--up); border-color:var(--up); }}
+.istats {{ display:flex; flex-wrap:wrap; gap:10px 22px; margin-top:10px; align-items:flex-end; font-variant-numeric:tabular-nums; }}
+.irange {{ min-width:190px; flex:1; }} .ispark {{ margin-left:auto; }}
+.rbar {{ position:relative; height:6px; border-radius:3px; margin:6px 0 2px; background:linear-gradient(90deg, var(--up), #6b6450 50%, var(--down)); opacity:.85; }}
+.rmark {{ position:absolute; top:-4px; width:4px; height:14px; margin-left:-2px; border-radius:2px; background:var(--fg); box-shadow:0 0 0 2px var(--panel); }}
+.rlab {{ display:flex; justify-content:space-between; gap:6px; }}
+.roadmap {{ list-style:none; padding:0; margin:0; border-left:2px solid #4a3f28; }}
+.roadmap li {{ padding:4px 0 10px 16px; position:relative; }}
+.roadmap li::before {{ content:""; position:absolute; left:-6px; top:10px; width:10px; height:10px; border-radius:50%; background:var(--accent); }}
+.roadmap li.past {{ opacity:.55; }} .roadmap li.past::before {{ background:var(--muted); }}
+@media (max-width:640px) {{ .ispark {{ display:none; }} .avoid th:nth-child(3), .avoid td:nth-child(3) {{ display:table-cell; }} }}
 @media (max-width:640px) {{ .trend th:nth-child(3), .trend td:nth-child(3), .trend th:nth-child(4), .trend td:nth-child(4) {{ display:none; }} }}
 .tag {{ font-size:11px; color:var(--muted); border:1px solid var(--line); border-radius:4px; padding:0 5px; margin-left:6px; }}
 .chart {{ width:100%; height:auto; }} .grid {{ stroke:var(--line); }} .axis {{ fill:var(--muted); font-size:11px; }}
