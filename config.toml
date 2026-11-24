@@ -152,28 +152,28 @@ items = [
 
 [[recipe]]
 name = "Mithril Spurs"
-note = "4 Mithril Bar + 3 Solid Grinding Stone, making the grinding stones yourself from bought Solid Stone (4 each = 12)"
+note = "Buy ore and stone, make everything yourself: 4 Mithril Ore (smelted to bars) + 12 Solid Stone (made into 3 grinding stones)"
 makes = 7969
 makes_qty = 1
-reagents = [ { id = 3860, qty = 4 }, { id = 7912, qty = 12 } ]
+reagents = [ { id = 3858, qty = 4 }, { id = 7912, qty = 12 } ]
 
 [[recipe]]
 name = "Mithril Spurs (buying grinding stones)"
-note = "Comparison: 4 Mithril Bar + 3 Solid Grinding Stone bought on the auction house"
+note = "Comparison: 4 Mithril Ore (smelted to bars) + 3 Solid Grinding Stone bought ready-made"
 makes = 7969
 makes_qty = 1
-reagents = [ { id = 3860, qty = 4 }, { id = 7966, qty = 3 } ]
+reagents = [ { id = 3858, qty = 4 }, { id = 7966, qty = 3 } ]
 
 [[recipe]]
 name = "Mithril Shield Spike"
-note = "4 Mithril Bar + 2 Truesilver Bar + 4 Solid Grinding Stone, making the grinding stones yourself from bought Solid Stone (4 each = 16)"
+note = "Buy ore and stone, make everything yourself: 4 Mithril Ore + 2 Truesilver Ore (smelted to bars) + 16 Solid Stone (made into 4 grinding stones)"
 makes = 7967
 makes_qty = 1
-reagents = [ { id = 3860, qty = 4 }, { id = 6037, qty = 2 }, { id = 7912, qty = 16 } ]
+reagents = [ { id = 3858, qty = 4 }, { id = 7911, qty = 2 }, { id = 7912, qty = 16 } ]
 
 [[recipe]]
 name = "Mithril Shield Spike (buying grinding stones)"
-note = "Comparison: 4 Mithril Bar + 2 Truesilver Bar + 4 Solid Grinding Stone bought on the auction house"
+note = "Comparison: 4 Mithril Ore + 2 Truesilver Ore (smelted to bars) + 4 Solid Grinding Stone bought ready-made"
 makes = 7967
 makes_qty = 1
-reagents = [ { id = 3860, qty = 4 }, { id = 6037, qty = 2 }, { id = 7966, qty = 4 } ]
+reagents = [ { id = 3858, qty = 4 }, { id = 7911, qty = 2 }, { id = 7966, qty = 4 } ]
