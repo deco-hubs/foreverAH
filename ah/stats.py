@@ -55,3 +55,22 @@ def gold(copper):
     if s:
         return f"{sign}{s}s {c}c" if c else f"{sign}{s}s"
     return f"{sign}{c}c"
+
+
+def coins(copper):
+    """Like gold(), but as HTML with coin icons, the way the game shows money."""
+    if copper is None:
+        return '<span class="muted">–</span>'
+    sign = "−" if copper < 0 else ""
+    c = int(round(abs(copper)))
+    g, s, k = c // 10000, (c // 100) % 100, c % 100
+    part = lambda n, kind: f'{n:,}'.replace(",", "\u202f") + f'<i class="coin {kind}" aria-label="{kind}"></i>'
+    if g >= 100:
+        parts = [part(g, "gold")]
+    elif g:
+        parts = [part(g, "gold")] + ([part(s, "silver")] if s else [])
+    elif s:
+        parts = [part(s, "silver")] + ([part(k, "copper")] if k else [])
+    else:
+        parts = [part(k, "copper")]
+    return f'<span class="money">{sign}{" ".join(parts)}</span>'

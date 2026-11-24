@@ -4,7 +4,8 @@ import json
 from datetime import timedelta
 
 from . import trends
-from .stats import gold
+from .stats import coins, gold
+from .theme import BANNER, heading
 
 AH_CUT = 0.05
 
@@ -130,7 +131,7 @@ Thresholds are under <code>[trends]</code> in config.toml.</p>"""]
 
     # 1. time of day
     index, covered = trends.time_of_day(cfg, hist, now)
-    out.append("<h2>Best time to buy and sell</h2>")
+    out.append(heading("Best time to buy and sell", "clock"))
     if index is None or covered < 1:
         out.append('<p class="muted">Needs at least a day of history.</p>')
     else:
@@ -157,14 +158,14 @@ Thresholds are under <code>[trends]</code> in config.toml.</p>"""]
 <td class="num"><b class="{'up' if chg > 0 else 'down'}">{chg:+.0f}%</b><div class="small muted">{span}</div></td>
 <td>{_steadiness(r2)}</td>
 <td class="num">{f"{sup:+.0f}%" if sup is not None else "–"}</td>
-<td class="num">{gold(hist[iid][-1][2])}</td>
+<td class="num">{coins(hist[iid][-1][2])}</td>
 <td class="spark-cell">{_daily_spark(v['daily'])}</td></tr>""")
         return ("""<table class="trend"><thead><tr><th>Item</th><th class="num">Change</th><th>How steady</th>
 <th class="num">Supply, 7 d</th><th class="num">Price now</th><th>Last 30 days</th></tr></thead><tbody>"""
                 + "".join(body) + "</tbody></table>")
 
-    out.append('<h2>Trending up <span class="muted small">(getting more expensive)</span></h2>' + mover_rows("up"))
-    out.append('<h2>Trending down <span class="muted small">(getting cheaper)</span></h2>' + mover_rows("down"))
+    out.append(heading("Trending up", "up", extra=' <span class="muted small">getting more expensive</span>') + mover_rows("up"))
+    out.append(heading("Trending down", "down", extra=' <span class="muted small">getting cheaper</span>') + mover_rows("down"))
 
     # 3. featured category at a glance
     if featured:
@@ -182,7 +183,7 @@ Thresholds are under <code>[trends]</code> in config.toml.</p>"""]
             wk = f'{v["week"]:+.0f}%' if v["week"] is not None else "–"
             fr.append(f"""<tr><td>{html.escape(it['name'])}</td><td class="num">{wk}</td><td>{_steadiness(v['week_r2'])}</td>
 <td>{state}</td><td class="spark-cell">{_daily_spark(v['daily'])}</td></tr>""")
-        out.append(f"""<h2>{html.escape(featured)} at a glance</h2>
+        out.append(f"""{heading(html.escape(featured) + " at a glance", category=featured)}
 <table class="trend"><thead><tr><th>Item</th><th class="num">7-day trend</th><th>How steady</th><th>Status</th><th>Last 30 days</th></tr></thead>
 <tbody>{"".join(fr)}</tbody></table>""")
 
@@ -201,7 +202,7 @@ Thresholds are under <code>[trends]</code> in config.toml.</p>"""]
             f"""<tr><td>{html.escape(c)}</td><td class="num">{_pct_html(st.median(d['chg']))}</td>
 <td class="num">{d['up'] or '–'}</td><td class="num">{d['down'] or '–'}</td><td class="num">{len(d['chg'])}</td></tr>"""
             for c, d in sorted(cats.items(), key=lambda cd: -st.median(cd[1]["chg"])))
-        out.append(f"""<h2>By category</h2>
+        out.append(f"""{heading("By category", "grid")}
 <table class="trend"><thead><tr><th>Category</th><th class="num">Typical 7-day change</th><th class="num">Trending up</th>
 <th class="num">Trending down</th><th class="num">Items</th></tr></thead><tbody>{crow}</tbody></table>""")
 
@@ -254,9 +255,9 @@ def build(cfg, hist, latest_time, out_path):
         rows_html.setdefault(item.get("category", "Other"), []).append(f"""
 <tr class="item" data-id="{iid}" tabindex="0" title="Click for the price chart">
   <td><a href="https://www.wowhead.com/forever/item={iid}" target="_blank" rel="noopener">{name}</a>{status}</td>
-  <td class="num"><b>{gold(last[2])}</b><div class="small muted">min {gold(last[1])}</div></td>
+  <td class="num"><b>{coins(last[2])}</b><div class="small muted">min {coins(last[1])}</div></td>
   <td class="num">{last[3]:,}</td>
-  <td class="num">{gold(avg7)}</td>
+  <td class="num">{coins(avg7)}</td>
   {change_cells}
   <td class="spark-cell">{_sparkline(_bucket(week, 2))}</td>
 </tr>
@@ -294,17 +295,17 @@ def build(cfg, hist, latest_time, out_path):
         verdict = "Craft and sell" if profit > 0 else "Sell the materials"
         note = f'<div class="small muted">{html.escape(r["note"])}</div>' if r.get("note") else ""
         craft_rows.append(f"""<tr><td>{html.escape(r["name"])}<div class="small"><b class="{'up' if profit > 0 else 'down'}">{verdict}</b></div>{note}</td>
-  <td class="num">{gold(cost)}</td><td class="num">{gold(revenue)}</td>
-  <td class="num"><b class="{'up' if profit > 0 else 'down'}">{gold(profit)}</b></td>
+  <td class="num">{coins(cost)}</td><td class="num">{coins(revenue)}</td>
+  <td class="num"><b class="{'up' if profit > 0 else 'down'}">{coins(profit)}</b></td>
   <td class="num">{_pct_html(margin)}</td></tr>""")
 
     featured = cfg.get("dashboard", {}).get("featured")
     order = ([featured] if featured in rows_html else []) + [c for c in rows_html if c != featured]
-    craft_html = "" if not craft_rows else f"""<h2>Crafting profit</h2>
+    craft_html = "" if not craft_rows else f"""{heading("Crafting profit", "hammer")}
 <p class="small muted">Sale value is after the 5% auction house cut. Recipes and reagents are set in config.toml.</p>
 <table class="craft"><thead><tr><th>Recipe</th><th class="num">Materials cost</th><th class="num">Sells for</th><th class="num">Profit per craft</th><th class="num">Margin</th></tr></thead>
 <tbody>{"".join(craft_rows)}</tbody></table>"""
-    section = lambda cat: f"""<h2>{html.escape(cat)}</h2>
+    section = lambda cat: f"""{heading(html.escape(cat), category=cat)}
 <table class="items"><thead><tr><th>Item</th><th class="num">Market value</th><th class="num">Listed</th><th class="num">7-day avg</th>
 <th class="num">24 h</th><th class="num">7 d</th><th class="num">1 m</th><th class="num">3 m</th><th class="num">6 m</th><th>Last 7 days</th></tr></thead>
 <tbody>{"".join(rows_html[cat])}</tbody></table>"""
@@ -313,7 +314,7 @@ def build(cfg, hist, latest_time, out_path):
 
     flagged = ""
     if never_seen:
-        flagged = ("<h2>Never seen on this auction house</h2><p class='muted'>Either nobody has listed these yet, or the "
+        flagged = (heading("Never seen on this auction house", "question") + "<p class='muted'>Either nobody has listed these yet, or the "
                    "item ID is wrong for WoW: Forever. Check the ID on Wowhead and fix it in config.toml.</p><ul>" +
                    "".join(f"<li>{html.escape(i['name'])} <span class='muted'>(id {i['id']})</span></li>"
                            for i in never_seen) + "</ul>")
@@ -324,14 +325,31 @@ def build(cfg, hist, latest_time, out_path):
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Forever AH · {html.escape(ah['region'].upper())} Horde</title>
 <style>
-:root {{ --bg:#fbfaf7; --fg:#1d1c1a; --muted:#77736b; --line:#e6e2d9; --accent:#a8741a; --up:#2f7a4f; --down:#b3412e; --hover:#f3efe6; }}
-@media (prefers-color-scheme: dark) {{ :root {{ --bg:#15140f; --fg:#ecE8dc; --muted:#9b968a; --line:#2c2a24; --accent:#e0ad4f; --up:#6cc394; --down:#ec8a74; --hover:#1f1d17; }} }}
+/* "night market" theme: one dark palette, gold accents */
+:root {{ --bg:#10141b; --panel:#171d27; --fg:#efe6d2; --muted:#9a9384; --line:#29313e; --accent:#e2b048; --up:#86d39a; --down:#f2917a; --hover:#1f2733;
+  --serif: "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif; }}
 * {{ box-sizing:border-box; }}
-body {{ margin:0; background:var(--bg); color:var(--fg); font:15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }}
-main {{ max-width:1000px; margin:0 auto; padding:36px 20px 64px; }}
-h1 {{ font-size:24px; margin:0; letter-spacing:-.01em; }}
-h2 {{ font-size:16px; margin:40px 0 10px; }}
-.sub {{ color:var(--muted); margin:4px 0 0; }}
+body {{ margin:0; background:var(--bg); color:var(--fg); font:15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+  background-image: radial-gradient(1200px 400px at 50% -100px, #1c2536 0%, transparent 70%); }}
+main {{ max-width:1000px; margin:0 auto; padding:0 20px 64px; }}
+.hero {{ position:relative; margin:0 -20px; border-radius:0 0 18px 18px; overflow:hidden; border-bottom:1px solid #3a3222; }}
+.banner {{ display:block; width:100%; height:200px; }}
+.hero-text {{ position:absolute; left:28px; bottom:18px; right:28px; text-shadow:0 2px 8px #000; }}
+h1 {{ font-family:var(--serif); font-size:34px; font-weight:700; margin:0; letter-spacing:.02em; color:#f6e6b4; font-variant:small-caps; }}
+.hero .sub {{ color:#d8cfbb; }}
+@media (max-width:640px) {{ .banner {{ height:150px; }} h1 {{ font-size:25px; }} .hero-text {{ left:18px; bottom:12px; }} .hero .sub {{ font-size:12px; }} }}
+h2 {{ font-family:var(--serif); font-size:20px; font-weight:700; margin:40px 0 12px; color:#f1dfae; display:flex; align-items:center; gap:10px; letter-spacing:.01em; }}
+h2 .icon {{ color:var(--accent); flex:none; width:26px; height:26px; padding:4px; border:1px solid #4a3f28; border-radius:50%; background:#1c1a14; box-sizing:content-box; }}
+h2 .muted {{ font-family:system-ui, sans-serif; font-weight:400; font-size:13px; }}
+table {{ background:var(--panel); border:1px solid var(--line); border-radius:12px; border-collapse:separate; border-spacing:0; overflow:hidden; }}
+tr:last-child > td {{ border-bottom:none; }}
+thead th {{ background:#1b222d; }}
+.money {{ white-space:nowrap; }}
+.coin {{ display:inline-block; width:.72em; height:.72em; border-radius:50%; margin:0 .28em 0 .12em; vertical-align:-.04em; box-shadow:inset 0 -1px 0 rgba(0,0,0,.35); }}
+.coin.gold {{ background:radial-gradient(circle at 35% 30%, #fff3b8, #e2b048 55%, #9c6d16); }}
+.coin.silver {{ background:radial-gradient(circle at 35% 30%, #ffffff, #c2c8d2 55%, #7d8592); }}
+.coin.copper {{ background:radial-gradient(circle at 35% 30%, #ffd1a8, #c27a45 55%, #7c4422); }}
+.sub {{ color:var(--muted); margin:6px 0 0; font-size:14px; }}
 table {{ width:100%; border-collapse:collapse; font-size:14px; }}
 th, td {{ padding:8px 8px; border-bottom:1px solid var(--line); text-align:left; vertical-align:middle; }}
 th {{ font-size:12px; font-weight:600; color:var(--muted); }}
@@ -341,7 +359,7 @@ tr.detail td {{ background:var(--hover); padding:12px 16px; }}
 a {{ color:inherit; text-decoration-color:var(--line); }} a:hover {{ text-decoration-color:var(--accent); }}
 .muted {{ color:var(--muted); }} .small {{ font-size:12px; }}
 .up {{ color:var(--up); }} .down {{ color:var(--down); }}
-.tabs {{ display:flex; gap:4px; margin:22px 0 6px; border-bottom:1px solid var(--line); }}
+.tabs {{ display:flex; gap:4px; margin:22px 0 6px; border-bottom:1px solid var(--line); font-family:var(--serif); font-size:17px; }}
 .tabs a {{ padding:8px 14px; text-decoration:none; color:var(--muted); border-bottom:2px solid transparent; margin-bottom:-1px; }}
 .tabs a.on {{ color:var(--fg); border-bottom-color:var(--accent); font-weight:600; }}
 .tabs .count {{ font-size:11px; background:var(--accent); color:var(--bg); border-radius:9px; padding:1px 6px; margin-left:4px; }}
@@ -355,14 +373,14 @@ code {{ font-size:12px; }}
 .key.dashed {{ border-top:1px dashed var(--muted); }}
 .ranges {{ display:flex; gap:6px; margin-bottom:8px; }}
 .ranges button {{ font:inherit; font-size:12px; padding:3px 10px; border:1px solid var(--line); border-radius:6px; background:transparent; color:var(--muted); cursor:pointer; }}
-.ranges button.on {{ color:var(--fg); border-color:var(--accent); }}
+.ranges button.on {{ color:var(--fg); border-color:var(--accent); background:#2a2416; }}
 .items th:nth-child(n+5):nth-child(-n+9) {{ width:52px; }}
 @media (max-width:900px) {{ .items th:nth-child(4), .items td:nth-child(4), .spark-cell, .items th:last-child, .trend th:last-child {{ display:none; }} }}
 @media (max-width:640px) {{ .craft th:nth-child(5), .craft td:nth-child(5) {{ display:none; }} }}
 @media (max-width:640px) {{ .items th:nth-child(3), .items td:nth-child(3), .items th:nth-child(8), .items td:nth-child(8), .items th:nth-child(9), .items td:nth-child(9) {{ display:none; }} }}
 </style></head><body><main>
-<h1>Forever auction house</h1>
-<p class="sub">{html.escape(ah['region'].upper())} · ruleset {ah['ruleset']} · Horde (house {ah['house_id']}) · snapshot <time data-utc="{now.isoformat()}">{now.strftime('%d %b %Y %H:%M')} UTC</time></p>
+<header class="hero">{BANNER}<div class="hero-text"><h1>Forever Auction House</h1>
+<p class="sub">{html.escape(ah['region'].upper())} · ruleset {ah['ruleset']} · Horde (house {ah['house_id']}) · snapshot <time data-utc="{now.isoformat()}">{now.strftime('%d %b %Y %H:%M')} UTC</time></p></div></header>
 <nav class="tabs" role="tablist"><a href="#prices" role="tab" data-tab="prices">Prices</a><a href="#trends" role="tab" data-tab="trends">Trends{f' <span class="count">{n_trending}</span>' if n_trending else ''}</a></nav>
 <section id="tab-prices">
 <p class="small muted">Market value = average price of the cheapest 15% of units listed. ▲/▼ = trending (see the Trends tab). 24 h compares with the snapshot a day ago; 7 d to 6 m compare with that day's average price. "–" means not enough history yet. Click any row for its chart.</p>
