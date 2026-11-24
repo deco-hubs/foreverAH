@@ -3,7 +3,7 @@
 ## Notes: Gold plus the auction house value of your bags and bank, across all your characters. /nw
 ## Author: deco-hubs
 ## X-Updates: run sync_forever_addon.bat (downloads new versions and prices)
-## Version: 1.1.0
+## Version: 1.1.1
 ## SavedVariables: ForeverNetWorthDB
 ## IconTexture: Interface\Icons\INV_Misc_Coin_02
 ## AddonCompartmentFunc: ForeverNetWorth_Toggle

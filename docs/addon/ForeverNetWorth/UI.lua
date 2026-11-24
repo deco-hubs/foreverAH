@@ -119,8 +119,8 @@ local function build()
     :SetText("Open your bank once on each character to include it. /nw help for commands.")
 end
 
--- daily closing value for the last 30 days, from the saved history
-local function dailySeries(history)
+-- daily closing value for the last 30 days, from the saved history; today's bar is the live total
+local function dailySeries(history, liveTotal)
   local days, out = {}, {}
   local today = math.floor(time() / 86400)
   for _, p in ipairs(history) do
@@ -132,6 +132,7 @@ local function dailySeries(history)
     if days[d] then lastKnown = days[d] end
     out[#out + 1] = lastKnown or 0
   end
+  out[#out] = liveTotal
   return out
 end
 
@@ -204,7 +205,7 @@ local function redraw()
     end
   end
 
-  drawChart(dailySeries(db.history))
+  drawChart(dailySeries(db.history, t.total))
 end
 
 -- many changes can arrive at once (looting, the bank): redraw at most twice a second
