@@ -125,6 +125,7 @@ items = [
 
   # Blacksmithing
   { id = 7969,  name = "Mithril Spurs",               category = "Blacksmithing" },
+  { id = 7967,  name = "Mithril Shield Spike",        category = "Blacksmithing" },
   { id = 7912,  name = "Solid Stone",                 category = "Blacksmithing" },
   { id = 7966,  name = "Solid Grinding Stone",        category = "Blacksmithing" },
 
@@ -162,3 +163,17 @@ note = "Comparison: 4 Mithril Bar + 3 Solid Grinding Stone bought on the auction
 makes = 7969
 makes_qty = 1
 reagents = [ { id = 3860, qty = 4 }, { id = 7966, qty = 3 } ]
+
+[[recipe]]
+name = "Mithril Shield Spike"
+note = "4 Mithril Bar + 2 Truesilver Bar + 4 Solid Grinding Stone, making the grinding stones yourself from bought Solid Stone (4 each = 16)"
+makes = 7967
+makes_qty = 1
+reagents = [ { id = 3860, qty = 4 }, { id = 6037, qty = 2 }, { id = 7912, qty = 16 } ]
+
+[[recipe]]
+name = "Mithril Shield Spike (buying grinding stones)"
+note = "Comparison: 4 Mithril Bar + 2 Truesilver Bar + 4 Solid Grinding Stone bought on the auction house"
+makes = 7967
+makes_qty = 1
+reagents = [ { id = 3860, qty = 4 }, { id = 6037, qty = 2 }, { id = 7966, qty = 4 } ]
