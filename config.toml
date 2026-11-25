@@ -10,7 +10,7 @@ locale   = "en_GB"
 
 [dashboard]
 featured = "Fishing"   # summarised "at a glance" on the Trends tab
-tab_order = ["Crafting", "Investments", "Ores and bars", "Fishing", "Pearls", "Herbs", "Raid prep"]   # tabs not listed follow after, then Trends
+tab_order = ["Crafting", "Investments", "Ores and bars", "Fishing", "Herbs", "Raid prep"]   # tabs not listed follow after, then Trends
 timezone = "Europe/Oslo"   # for the "best time to buy" chart
 
 [trends]
@@ -146,8 +146,8 @@ items = [
   { id = 7912,  name = "Solid Stone",                 category = "Blacksmithing" },
   { id = 7966,  name = "Solid Grinding Stone",        category = "Blacksmithing" },
 
-  # Pearls (from Big-Mouth Clams)
-  { id = 13926, name = "Golden Pearl",                category = "Pearls" },
+  # Pearls (from Big-Mouth Clams), shown on the Fishing tab
+  { id = 13926, name = "Golden Pearl",                category = "Fishing" },
 
   # Raid prep: new Forever herbs, raid reagents and finished consumables (added 2026-11-24 for the Investments tab)
   { id = 248822, name = "Death Lotus",                   category = "Raid prep" },
