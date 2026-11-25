@@ -102,6 +102,11 @@ items = [
   { id = 4235,  name = "Heavy Hide",          category = "Cloth and leather" },
   { id = 8169,  name = "Thick Hide",          category = "Cloth and leather" },
   { id = 8171,  name = "Rugged Hide",         category = "Cloth and leather" },
+  { id = 4231,  name = "Cured Light Hide",    category = "Cloth and leather" },
+  { id = 4233,  name = "Cured Medium Hide",   category = "Cloth and leather" },
+  { id = 4236,  name = "Cured Heavy Hide",    category = "Cloth and leather" },
+  { id = 8172,  name = "Cured Thick Hide",    category = "Cloth and leather" },
+  { id = 15407, name = "Cured Rugged Hide",   category = "Cloth and leather" },
 
   # Fishing: raw fish, plus the alchemy oils made from them (to compare fish vs oil prices)
   { id = 13422, name = "Stonescale Eel",              category = "Fishing" },

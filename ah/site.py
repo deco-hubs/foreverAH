@@ -540,7 +540,7 @@ def build(cfg, hist, latest_time, out_path):
 <td class="spark-cell">{_daily_spark(tr[i]['daily']) if i in tr else ''}</td></tr>""" for i in reagent_ids)
         craft_tab = (craft_html + heading("Materials and products", "gem", extra=' <span class="muted small">everything the recipes use or make</span>')
                      + f"""<table class="trend"><thead><tr><th>Item</th><th class="num">Price now</th><th class="num">7-day trend</th><th>How steady</th><th>Last 30 days</th></tr></thead><tbody>{mat_rows}</tbody></table>""")
-    labels_short = {"Ores and bars": "Ores", "Cloth and leather": "Cloth"}
+    labels_short = {"Ores and bars": "Ores", "Cloth and leather": "Cloth/Leather"}
     cat_tabs = [(_slug(c), labels_short.get(c, c),
                  _category_tab(c, [i for i in cfg["items"] if i.get("category", "Other") == c], hist, tr, now, cfg,
                                table(c), [i for i in never_seen if i.get("category", "Other") == c]))
