@@ -32,7 +32,7 @@ A WoW: Forever auction house price tracker for one Horde auction house: EU, rule
 - A price of exactly 1337 copper (13s 37c) is special: the coin display shimmers (`stats.LEET`, class `money leet`), a "L33T PRICE SPOTTED" banner shows when the latest snapshot has one, and the Trends tab lists every sighting in a "Hall of L33t". The user asked for this; keep it.
 
 ## User's interests
-- Fishing reagents (Stonescale Eel, Firefin Snapper and the like) matter most. The user doesn't care about bolts or smelting.
+- Fishing reagents (Stonescale Eel, Firefin Snapper and the like) matter most. The user doesn't care about smelting. Bolts were dropped on 2026-11-18 but brought back on 2026-11-25 (silk and up only): items with `group = "Bolts"` render in their own table at the bottom of the Cloth/Leather tab, and `[[recipe]]` blocks with `tab = "<category>"` render as a "Crafting cost" table at the bottom of that tab instead of on the Crafting tab (and are left out of its materials list). The tab label "Cloth/Leather" is a display name only (`labels_short` in site.py); the category is still "Cloth and leather" so the #cloth-and-leather hash and history keep working.
 - The user holds 1 000 Stonescale Eel bought at about 1s each (in config as an [[investment]] with bought_qty/bought_at). Level 49 warrior, Blacksmithing 237, saving for the level 60 riding (1 000g) + epic mount (200g); plans to level BS 240–300 later with mined or cheaper Thorium.
 
 ## Conventions

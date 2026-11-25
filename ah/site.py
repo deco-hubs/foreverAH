@@ -366,7 +366,7 @@ def _tile(label, value, sub=""):
     return f'<div class="tile"><div class="tile-label">{label}</div><div class="tile-value">{value}</div><div class="tile-sub">{sub}</div></div>'
 
 
-def _category_tab(cat, items, hist, tr, now, cfg, table_html, never):
+def _category_tab(cat, items, hist, tr, now, cfg, table_html, never, bottom_html=""):
     sub = {i["id"]: hist[i["id"]] for i in items if hist.get(i["id"])}
     trs = {i["id"]: tr[i["id"]] for i in items if i["id"] in tr}
     weekly = [v["week"] for v in trs.values() if v["week"] is not None and not v["erratic"]]
@@ -411,6 +411,8 @@ def _category_tab(cat, items, hist, tr, now, cfg, table_html, never):
         out.append(f'<p class="tod">{ICON_CLOCK} Best time to buy {html.escape(cat.lower())}: <b class="up">{cheap[0]:02d}:00–{(cheap[0] + 3) % 24:02d}:00</b> '
                    f'({cheap[1] - 100:+.0f}%) · priciest <b class="down">{dear[0]:02d}:00–{(dear[0] + 3) % 24:02d}:00</b> ({dear[1] - 100:+.0f}%)</p>')
     out.append(table_html)
+    if bottom_html:
+        out.append(bottom_html)
     if never:
         out.append('<p class="small muted">Never seen on the auction house (no listings yet, or a wrong item ID in config.toml): '
                    + html.escape(", ".join(f"{i['name']} (id {i['id']})" for i in never)) + "</p>")
@@ -456,7 +458,7 @@ def build(cfg, hist, latest_time, out_path):
                        f'{_steadiness(lab[3])}">{arrow} {abs(lab[1]):.0f}%</span>')
         change_cells = "".join(f'<td class="num">{_pct_html(c, need)}</td>'
                                for c, need in zip(changes, ("1 day", "7 days", "1 month", "3 months", "6 months")))
-        rows_html.setdefault(item.get("category", "Other"), []).append(f"""
+        rows_html.setdefault((item.get("category", "Other"), item.get("group")), []).append(f"""
 <tr class="item" data-id="{iid}" tabindex="0" title="Click for the price chart">
   <td><a href="https://www.wowhead.com/forever/item={iid}" target="_blank" rel="noopener">{name}</a>{status}</td>
   <td class="num"><b>{coins(last[2])}</b><div class="small muted">min {coins(last[1])}</div></td>
@@ -489,10 +491,11 @@ def build(cfg, hist, latest_time, out_path):
         revenue = sell * r.get("makes_qty", 1) * (1 - AH_CUT)
         craft.append((revenue - cost, r, cost, revenue, []))
     craft.sort(key=lambda c: (c[0] is None, -(c[0] or 0)))
-    craft_rows = []
+    craft_rows, tab_craft_rows = [], {}
     for profit, r, cost, revenue, missing in craft:
+        target = tab_craft_rows.setdefault(r["tab"], []) if r.get("tab") else craft_rows
         if missing:
-            craft_rows.append(f'<tr><td>{html.escape(r["name"])}</td><td colspan="6" class="muted">'
+            target.append(f'<tr><td>{html.escape(r["name"])}</td><td colspan="6" class="muted">'
                               f'no current price for {html.escape(", ".join(missing))}</td></tr>')
             continue
         margin = profit / cost * 100 if cost else None
@@ -501,7 +504,7 @@ def build(cfg, hist, latest_time, out_path):
         avg_p = sum(week_p) / len(week_p) if week_p else None
         verdict = "Craft and sell" if profit > 0 else "Sell the materials"
         note = f'<div class="small muted">{html.escape(r["note"])}</div>' if r.get("note") else ""
-        craft_rows.append(f"""<tr><td>{html.escape(r["name"])}<div class="small"><b class="{'up' if profit > 0 else 'down'}">{verdict}</b></div>{note}</td>
+        target.append(f"""<tr><td>{html.escape(r["name"])}<div class="small"><b class="{'up' if profit > 0 else 'down'}">{verdict}</b></div>{note}</td>
   <td class="num">{coins(cost)}</td><td class="num">{coins(revenue)}</td>
   <td class="num"><b class="{'up' if profit > 0 else 'down'}">{coins(profit)}</b></td>
   <td class="num">{_pct_html(margin)}</td>
@@ -513,9 +516,29 @@ def build(cfg, hist, latest_time, out_path):
 <p class="small muted">Sale value is after the 5% auction house cut. "7-day avg profit" and the chart use each day's average prices. Recipes and reagents are set in config.toml.</p>
 <table class="craft"><thead><tr><th>Recipe</th><th class="num">Materials cost</th><th class="num">Sells for</th><th class="num">Profit per craft</th><th class="num">Margin</th><th class="num">7-day avg profit</th><th>Profit, last 30 days</th></tr></thead>
 <tbody>{"".join(craft_rows)}</tbody></table>"""
-    table = lambda cat: f"""<table class="items"><thead><tr><th>Item</th><th class="num">Market value</th><th class="num">Listed</th><th class="num">7-day avg</th>
+    craft_table = lambda rows: f"""<table class="craft"><thead><tr><th>Recipe</th><th class="num">Materials cost</th><th class="num">Sells for</th><th class="num">Profit per craft</th><th class="num">Margin</th><th class="num">7-day avg profit</th><th>Profit, last 30 days</th></tr></thead>
+<tbody>{"".join(rows)}</tbody></table>"""
+    table = lambda cat, group=None: f"""<table class="items"><thead><tr><th>Item</th><th class="num">Market value</th><th class="num">Listed</th><th class="num">7-day avg</th>
 <th class="num">24 h</th><th class="num">7 d</th><th class="num">1 m</th><th class="num">3 m</th><th class="num">6 m</th><th>Last 7 days</th></tr></thead>
-<tbody>{"".join(rows_html.get(cat, []))}</tbody></table>"""
+<tbody>{"".join(rows_html.get((cat, group), []))}</tbody></table>"""
+
+    def bottom(cat):
+        groups = []
+        for i in cfg["items"]:
+            g = i.get("group")
+            if i.get("category", "Other") == cat and g and g not in groups:
+                groups.append(g)
+        parts = []
+        for g in groups:
+            parts.append(heading(html.escape(g), category=cat))
+            if rows_html.get((cat, g)):
+                parts.append(table(cat, g))
+        if tab_craft_rows.get(cat):
+            parts.append(heading("Crafting cost" + (f" ({html.escape(', '.join(groups).lower())})" if groups else ""), "hammer"))
+            parts.append('<p class="small muted">Materials bought at market value; sale value is after the 5% auction house cut. '
+                         '"Craft and sell" means making it beats selling the raw materials.</p>')
+            parts.append(craft_table(tab_craft_rows[cat]))
+        return "\n".join(parts)
 
     # tab order: config [dashboard] tab_order first, then any other categories as they appear in config
     all_cats = []
@@ -527,7 +550,7 @@ def build(cfg, hist, latest_time, out_path):
     cat_order = [c for c in wanted if c in all_cats] + [c for c in all_cats if c not in wanted]
     craft_pos = wanted.index("Crafting") if "Crafting" in wanted else 0
     reagent_ids = []
-    for r in cfg["recipe"]:
+    for r in [r for r in cfg["recipe"] if not r.get("tab")]:
         for iid in [r["makes"]] + [g["id"] for g in r["reagents"] if not g.get("vendor_price")]:
             if iid not in reagent_ids and iid in items_by_id:
                 reagent_ids.append(iid)
@@ -543,7 +566,7 @@ def build(cfg, hist, latest_time, out_path):
     labels_short = {"Ores and bars": "Ores", "Cloth and leather": "Cloth/Leather"}
     cat_tabs = [(_slug(c), labels_short.get(c, c),
                  _category_tab(c, [i for i in cfg["items"] if i.get("category", "Other") == c], hist, tr, now, cfg,
-                               table(c), [i for i in never_seen if i.get("category", "Other") == c]))
+                               table(c), [i for i in never_seen if i.get("category", "Other") == c], bottom(c)))
                 for c in cat_order]
     tabs = cat_tabs[:]
     if craft_rows:

@@ -108,6 +108,11 @@ items = [
   { id = 8172,  name = "Cured Thick Hide",    category = "Cloth and leather" },
   { id = 15407, name = "Cured Rugged Hide",   category = "Cloth and leather" },
 
+  # Bolts (shown in their own table at the bottom of the Cloth/Leather tab, with crafting cost)
+  { id = 4305,  name = "Bolt of Silk Cloth",  category = "Cloth and leather", group = "Bolts" },
+  { id = 4339,  name = "Bolt of Mageweave",   category = "Cloth and leather", group = "Bolts" },
+  { id = 14048, name = "Bolt of Runecloth",   category = "Cloth and leather", group = "Bolts" },
+
   # Fishing: raw fish, plus the alchemy oils made from them (to compare fish vs oil prices)
   { id = 13422, name = "Stonescale Eel",              category = "Fishing" },
   { id = 6359,  name = "Firefin Snapper",             category = "Fishing" },
@@ -212,6 +217,31 @@ note = "Comparison: 4 Mithril Ore + 2 Truesilver Ore (smelted to bars) + 4 Solid
 makes = 7967
 makes_qty = 1
 reagents = [ { id = 3858, qty = 4 }, { id = 7911, qty = 2 }, { id = 7966, qty = 4 } ]
+
+# Bolts: recipes with tab = "<category>" are shown at the bottom of that tab instead of the Crafting tab.
+[[recipe]]
+name = "Bolt of Silk Cloth"
+note = "4 Silk Cloth"
+tab = "Cloth and leather"
+makes = 4305
+makes_qty = 1
+reagents = [ { id = 4306, qty = 4 } ]
+
+[[recipe]]
+name = "Bolt of Mageweave"
+note = "5 Mageweave Cloth"
+tab = "Cloth and leather"
+makes = 4339
+makes_qty = 1
+reagents = [ { id = 4338, qty = 5 } ]
+
+[[recipe]]
+name = "Bolt of Runecloth"
+note = "5 Runecloth"
+tab = "Cloth and leather"
+makes = 14048
+makes_qty = 1
+reagents = [ { id = 14047, qty = 5 } ]
 
 [[recipe]]
 name = "Solid Grinding Stone"
